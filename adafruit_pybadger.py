@@ -49,7 +49,6 @@ import array
 import math
 from collections import namedtuple
 import board
-import adafruit_lis3dh
 import audioio
 import displayio
 import digitalio
@@ -61,6 +60,7 @@ from adafruit_display_shapes.rect import Rect
 from adafruit_display_text.label import Label
 import terminalio
 import adafruit_miniqr
+import adafruit_lis3dh
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"

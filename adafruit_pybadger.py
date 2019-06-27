@@ -49,11 +49,11 @@ import array
 import math
 from collections import namedtuple
 import board
+from micropython import const
+import digitalio
 import audioio
 import displayio
-import digitalio
 from gamepadshift import GamePadShift
-from micropython import const
 import neopixel
 import analogio
 from adafruit_display_shapes.rect import Rect

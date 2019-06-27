@@ -33,36 +33,33 @@ Implementation Notes
 
 **Hardware:**
 
-.. todo:: Add links to any specific hardware product page(s), or category page(s). Use unordered list & hyperlink rST
-   inline format: "* `Link Text <url>`_"
+* `Adafruit PyBadge <https://www.adafruit.com/product/4200>`_
+* `Adafruit PyBadge LC <https://www.adafruit.com/product/3939>`_
+* `Adafruit PyGamer <https://www.adafruit.com/product/4277>`_
 
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
   https://github.com/adafruit/circuitpython/releases
 
-.. todo:: Uncomment or remove the Bus Device and/or the Register library dependencies based on the library's use of either.
-
-# * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
-# * Adafruit's Register library: https://github.com/adafruit/Adafruit_CircuitPython_Register
 """
 
-import board
 import time
-import adafruit_lis3dh
 import array
+import math
+from collections import namedtuple
+import board
+import adafruit_lis3dh
 import audioio
 import displayio
 import digitalio
 from gamepadshift import GamePadShift
 from micropython import const
-import math
 import neopixel
 import analogio
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text.label import Label
 import terminalio
-from collections import namedtuple
 import adafruit_miniqr
 
 __version__ = "0.0.0-auto.0"
@@ -71,7 +68,9 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 Buttons = namedtuple("Buttons", "b a start select right down up left")
 
 
+# pylint: disable=too-many-instance-attributes
 class PyBadger:
+    """PyBadger class."""
     # Button Constants
     BUTTON_LEFT = const(128)
     BUTTON_UP = const(64)
@@ -106,7 +105,7 @@ class PyBadger:
             self._pygamer_joystick_y = analogio.AnalogIn(board.JOYSTICK_Y)
 
         # NeoPixels
-        # Todo: Tie pixelcount to automatically figuring out which board is being used
+        # Count is hardcoded - should be based on board ID, currently no board info for PyBadge LC
         neopixel_count = 5
         self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, neopixel_count,
                                             pixel_order=neopixel.GRB)
@@ -122,7 +121,8 @@ class PyBadger:
         self._sine_wave = None
         self._sine_wave_sample = None
 
-    def check_for_movement(self, movement_threshold=1.5):
+    def _check_for_movement(self, movement_threshold=10):
+        """Checks to see if board is moving. Used to auto-dim display when not moving."""
         current_accelerometer = self.acceleration
         if self._last_accelerometer is None:
             self._last_accelerometer = current_accelerometer
@@ -132,8 +132,15 @@ class PyBadger:
         self._last_accelerometer = current_accelerometer
         return acceleration_delta > movement_threshold
 
-    def auto_dim_display(self, delay=5.0):
-        if not self.check_for_movement():
+    def auto_dim_display(self, delay=5.0, movement_threshold=10):
+        """Auto-dim the display when board is not moving.
+
+        :param int delay: Time in seconds before display auto-dims after movement has ceased.
+        :param int movement_threshold: Threshold required for movement to be considered stopped.
+                                       Change to increase or decrease sensitivity.
+
+        """
+        if not self._check_for_movement(movement_threshold=movement_threshold):
             current_time = time.monotonic()
             if current_time - self._start_time > delay:
                 self.display.brightness = 0.1
@@ -143,44 +150,105 @@ class PyBadger:
 
     @property
     def pixels(self):
+        """Sequence like object representing the NeoPixels on the board."""
         return self._neopixels
 
     @property
     def joystick(self):
+        """The joystick on the PyGamer."""
         if hasattr(board, "JOYSTICK_X"):
             x = self._pygamer_joystick_x.value
             y = self._pygamer_joystick_y.value
             return x, y
-        else:
-            raise RuntimeError("This board does not have a built in joystick.")
+        raise RuntimeError("This board does not have a built in joystick.")
 
     @property
     def button(self):
+        """The buttons on the board.
+
+        Example use:
+
+        .. code-block:: python
+
+        from adafruit_pybadger import PyBadger
+
+        pybadger = PyBadger()
+
+        while True:
+            if pybadger.button.a:
+                print("Button A")
+            elif pybadger.button.b:
+                print("Button B")
+            elif pybadger.button.start:
+                print("Button start")
+            elif pybadger.button.select:
+                print("Button select")
+
+        """
         button_values = self._buttons.get_pressed()
         return Buttons(*[button_values & button for button in
-                         (BUTTON_B, BUTTON_A, BUTTON_START, BUTTON_SELECT, BUTTON_RIGHT,
-                          BUTTON_DOWN, BUTTON_UP, BUTTON_LEFT)])
+                         (PyBadger.BUTTON_B, PyBadger.BUTTON_A, PyBadger.BUTTON_START,
+                          PyBadger.BUTTON_SELECT, PyBadger.BUTTON_RIGHT,
+                          PyBadger.BUTTON_DOWN, PyBadger.BUTTON_UP, PyBadger.BUTTON_LEFT)])
 
     @property
     def light(self):
+        """Light sensor data."""
         return self._light_sensor.value
 
     @property
     def acceleration(self):
+        """Accelerometer data."""
         return self._accelerometer.acceleration
 
     @property
     def brightness(self):
+        """Display brightness."""
         return self.display.brightness
 
     @brightness.setter
     def brightness(self, value):
         self.display.brightness = value
 
+    def business_card(self, image_name=None, dwell=20):
+        """Display a bitmap image and a text string, such as a personal image and email address.
+        CURRENTLY ONLY DISPLAYS BITMAP IMAGE. Text string to be added.
+
+        :param str image_name: The name of the bitmap image including .bmp, e.g. ``"Blinka.bmp"``.
+        :param int dwell: The amount of time in seconds to display the business card.
+
+        """
+        business_card_splash = displayio.Group(max_size=30)
+        self.display.show(business_card_splash)
+        with open(image_name, "rb") as file_name:
+            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
+            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
+            business_card_splash.append(face_image)
+            # Wait for the image to load.
+            self.display.wait_for_frame()
+            time.sleep(dwell)
+
+    # pylint: disable=too-many-locals
     def badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
               background_text_color=0xFFFFFF, foreground_text_color=0x000000, hello_scale=1,
               hello_string="HELLO", my_name_is_scale=1, my_name_is_string="MY NAME IS",
               name_scale=1, name_string="Blinka"):
+        """Create a "Hello My Name is"-style badge.
+
+        :param background_color: The color of the background. Defaults to 0xFF0000.
+        :param foreground_color: The color of the foreground rectangle. Defaults to 0xFFFFFF.
+        :param background_text_color: The color of the "HELLO MY NAME IS" text. Defaults to
+                                      0xFFFFFF.
+        :param foreground_text_color: The color of the name text. Defaults to 0x000000.
+        :param hello_scale: The size scale of the "HELLO" string. Defaults to 1.
+        :param hello_string: The first string of the badge. Defaults to "HELLO".
+        :param my_name_is_scale: The size scale of the "MY NAME IS" string. Defaults to 1.
+        :param my_name_is_string: The second string of the badge. Defaults to "MY NAME IS".
+        :param name_scale: The size scale of the name string. Defaults to 1.
+        :param name_string: The third string of the badge - change to be your name. Defaults to
+                            "Blinka".
+
+        """
         # Make the Display Background
         splash = displayio.Group(max_size=20)
 
@@ -203,9 +271,9 @@ class PyBadger:
         hello_group = displayio.Group(scale=hello_scale)
         # Setup and Center the Hello Label
         hello_label = Label(terminalio.FONT, text=hello_string)
-        (x, y, w, h) = hello_label.bounding_box
-        hello_label.x = ((self.display.width // (2 * hello_scale)) - w // 2)
-        hello_label.y = int(h // (1.2 * hello_scale))
+        (_, _, width, height) = hello_label.bounding_box
+        hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
+        hello_label.y = int(height // (1.2 * hello_scale))
         hello_label.color = background_text_color
         hello_group.append(hello_label)
 
@@ -213,9 +281,9 @@ class PyBadger:
         my_name_is_group = displayio.Group(scale=my_name_is_scale)
         # Setup and Center the "My Name Is" Label
         my_name_is_label = Label(terminalio.FONT, text=my_name_is_string)
-        (x, y, w, h) = my_name_is_label.bounding_box
-        my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - w // 2)
-        my_name_is_label.y = int(h // (0.42 * my_name_is_scale))
+        (_, _, width, height) = my_name_is_label.bounding_box
+        my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
+        my_name_is_label.y = int(height // (0.42 * my_name_is_scale))
         my_name_is_label.color = background_text_color
         my_name_is_group.append(my_name_is_label)
 
@@ -223,9 +291,9 @@ class PyBadger:
         name_group = displayio.Group(scale=name_scale)
         # Setup and Center the Name Label
         name_label = Label(terminalio.FONT, text=name_string)
-        (x, y, w, h) = name_label.bounding_box
-        name_label.x = ((self.display.width // (2 * name_scale)) - w // 2)
-        name_label.y = int(h // (0.17 * name_scale))
+        (_, _, width, height) = name_label.bounding_box
+        name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
+        name_label.y = int(height // (0.17 * name_scale))
         name_label.color = foreground_text_color
         name_group.append(name_label)
 
@@ -238,14 +306,11 @@ class PyBadger:
 
     @staticmethod
     def bitmap_qr(matrix):
-        # monochome (2 color) palette
+        """The QR code bitmap."""
         border_pixels = 2
-
-        # bitmap the size of the screen, monochrome (2 colors)
         bitmap = displayio.Bitmap(matrix.width + 2 * border_pixels,
                                   matrix.height + 2 * border_pixels, 2)
-        # raster the QR code
-        for y in range(matrix.height):  # each scanline in the height
+        for y in range(matrix.height):
             for x in range(matrix.width):
                 if matrix[x, y]:
                     bitmap[x + border_pixels, y + border_pixels] = 1
@@ -254,17 +319,25 @@ class PyBadger:
         return bitmap
 
     def qr_code(self, data=b'https://circuitpython.org', dwell=20):
-        qr = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
-        qr.add_data(data)
-        qr.make()
-        qr_bitmap = self.bitmap_qr(qr.matrix)
+        """Generate a QR code and display it for ``dwell`` seconds.
+
+        :param bytearray data: A bytearray of data for the QR code
+        :param int dwell: The amount of time in seconds to display the QR code
+
+        """
+        qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
+        qr_code.add_data(data)
+        qr_code.make()
+        qr_bitmap = self.bitmap_qr(qr_code.matrix)
         palette = displayio.Palette(2)
         palette[0] = 0xFFFFFF
         palette[1] = 0x000000
-        qr_code_scale = min(self.display.width // qr_bitmap.width, self.display.height // qr_bitmap.height)
+        qr_code_scale = min(self.display.width // qr_bitmap.width,
+                            self.display.height // qr_bitmap.height)
         qr_position_x = int(((self.display.width / qr_code_scale) - qr_bitmap.width) / 2)
         qr_position_y = int(((self.display.height / qr_code_scale) - qr_bitmap.height) / 2)
-        qr_img = displayio.TileGrid(qr_bitmap, pixel_shader=palette, x=qr_position_x, y=qr_position_y)
+        qr_img = displayio.TileGrid(qr_bitmap, pixel_shader=palette, x=qr_position_x,
+                                    y=qr_position_y)
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
         self.display.show(qr_code)

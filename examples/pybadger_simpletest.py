@@ -7,10 +7,10 @@ while True:
     pybadger.auto_dim_display()
 
     if pybadger.button.a:
-        pybadger.business_card(image_name="Blinka.bmp")
+        pybadger.show_business_card(image_name="Blinka.bmp")
     elif pybadger.button.b:
         print("b B")
     elif pybadger.button.start:
         print("b start")
     elif pybadger.button.select:
-        pybadger.qr_code()
+        pybadger.show_qr_code()

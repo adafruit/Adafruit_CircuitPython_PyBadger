@@ -3,7 +3,7 @@ from adafruit_pybadger import PyBadger
 pybadger = PyBadger()
 
 while True:
-    pybadger.badge(hello_scale=2, my_name_is_scale=2, name_scale=3)
+    pybadger.show_badge(hello_scale=2, my_name_is_scale=2, name_scale=3)
     pybadger.auto_dim_display()
 
     if pybadger.button.a:

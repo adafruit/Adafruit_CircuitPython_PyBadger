@@ -86,7 +86,10 @@ class PyBadger:
         if i2c is None:
             i2c = board.I2C()
         int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-        self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+        try:
+            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+        except ValueError:
+            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
         # Buttons
         self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
@@ -210,7 +213,7 @@ class PyBadger:
     def brightness(self, value):
         self.display.brightness = value
 
-    def business_card(self, image_name=None, dwell=20):
+    def show_business_card(self, image_name=None, dwell=20):
         """Display a bitmap image and a text string, such as a personal image and email address.
         CURRENTLY ONLY DISPLAYS BITMAP IMAGE. Text string to be added.
 
@@ -229,10 +232,12 @@ class PyBadger:
             time.sleep(dwell)
 
     # pylint: disable=too-many-locals
-    def badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
-              background_text_color=0xFFFFFF, foreground_text_color=0x000000, hello_scale=1,
-              hello_string="HELLO", my_name_is_scale=1, my_name_is_string="MY NAME IS",
-              name_scale=1, name_string="Blinka"):
+    def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
+                   background_text_color=0xFFFFFF, foreground_text_color=0x000000,
+                   hello_font=terminalio.FONT, hello_scale=1, hello_string="HELLO",
+                   my_name_is_font=terminalio.FONT, my_name_is_scale=1,
+                   my_name_is_string="MY NAME IS", name_font=terminalio.FONT, name_scale=1,
+                   name_string="Blinka"):
         """Create a "Hello My Name is"-style badge.
 
         :param background_color: The color of the background. Defaults to 0xFF0000.
@@ -240,10 +245,14 @@ class PyBadger:
         :param background_text_color: The color of the "HELLO MY NAME IS" text. Defaults to
                                       0xFFFFFF.
         :param foreground_text_color: The color of the name text. Defaults to 0x000000.
+        :param hello_font: The font for the "HELLO" string. Defaults to ``terminalio.FONT``.
         :param hello_scale: The size scale of the "HELLO" string. Defaults to 1.
         :param hello_string: The first string of the badge. Defaults to "HELLO".
+        :param my_name_is_font: The font for the "MY NAME IS" string. Defaults to
+                                ``terminalio.FONT``.
         :param my_name_is_scale: The size scale of the "MY NAME IS" string. Defaults to 1.
         :param my_name_is_string: The second string of the badge. Defaults to "MY NAME IS".
+        :param name_font: The font for the name string. Defaults to ``terminalio.FONT``.
         :param name_scale: The size scale of the name string. Defaults to 1.
         :param name_string: The third string of the badge - change to be your name. Defaults to
                             "Blinka".
@@ -270,7 +279,7 @@ class PyBadger:
         hello_scale = hello_scale
         hello_group = displayio.Group(scale=hello_scale)
         # Setup and Center the Hello Label
-        hello_label = Label(terminalio.FONT, text=hello_string)
+        hello_label = Label(font=hello_font, text=hello_string)
         (_, _, width, height) = hello_label.bounding_box
         hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
         hello_label.y = int(height // (1.2 * hello_scale))
@@ -280,7 +289,7 @@ class PyBadger:
         my_name_is_scale = my_name_is_scale
         my_name_is_group = displayio.Group(scale=my_name_is_scale)
         # Setup and Center the "My Name Is" Label
-        my_name_is_label = Label(terminalio.FONT, text=my_name_is_string)
+        my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string)
         (_, _, width, height) = my_name_is_label.bounding_box
         my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
         my_name_is_label.y = int(height // (0.42 * my_name_is_scale))
@@ -290,7 +299,7 @@ class PyBadger:
         name_scale = name_scale
         name_group = displayio.Group(scale=name_scale)
         # Setup and Center the Name Label
-        name_label = Label(terminalio.FONT, text=name_string)
+        name_label = Label(font=name_font, text=name_string)
         (_, _, width, height) = name_label.bounding_box
         name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
         name_label.y = int(height // (0.17 * name_scale))
@@ -318,7 +327,7 @@ class PyBadger:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def qr_code(self, data=b'https://circuitpython.org', dwell=20):
+    def show_qr_code(self, data=b'https://circuitpython.org', dwell=20):
         """Generate a QR code and display it for ``dwell`` seconds.
 
         :param bytearray data: A bytearray of data for the QR code

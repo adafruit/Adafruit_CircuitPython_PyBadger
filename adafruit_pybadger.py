@@ -213,11 +213,15 @@ class PyBadger:
     def brightness(self, value):
         self.display.brightness = value
 
-    def show_business_card(self, image_name=None, dwell=20):
+    def show_business_card(self, image_name=None, email_string=None,
+                           email_scale=1, email_font=terminalio.FONT, dwell=20):
         """Display a bitmap image and a text string, such as a personal image and email address.
-        CURRENTLY ONLY DISPLAYS BITMAP IMAGE. Text string to be added.
 
         :param str image_name: The name of the bitmap image including .bmp, e.g. ``"Blinka.bmp"``.
+        :param str email_string: A string to display along the bottom of the display, e.g.
+                                 ``"blinka@adafruit.com"``.
+        :param int email_scale: The scale of ``email_string``. Defaults to 1.
+        :param email_font: The font for the email string. Defaults to ``terminalio.FONT``.
         :param int dwell: The amount of time in seconds to display the business card.
 
         """
@@ -227,9 +231,16 @@ class PyBadger:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)
             face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
             business_card_splash.append(face_image)
-            # Wait for the image to load.
             self.display.wait_for_frame()
-            time.sleep(dwell)
+        email_group = displayio.Group(scale=email_scale)
+        email_label = Label(email_font, text=email_string)
+        (_, _, width, height) = email_label.bounding_box
+        email_label.x = ((self.display.width // (2 * email_scale)) - width // 2)
+        email_label.y = int(height // (0.13 * email_scale))
+        email_label.color = 0xFFFFFF
+        email_group.append(email_label)
+        business_card_splash.append(email_group)
+        time.sleep(dwell)
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
@@ -327,15 +338,15 @@ class PyBadger:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, data=b'https://circuitpython.org', dwell=20):
+    def show_qr_code(self, data="https://circuitpython.org", dwell=20):
         """Generate a QR code and display it for ``dwell`` seconds.
 
-        :param bytearray data: A bytearray of data for the QR code
+        :param string data: A string of data for the QR code
         :param int dwell: The amount of time in seconds to display the QR code
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
-        qr_code.add_data(data)
+        qr_code.add_data(bytearray(data))
         qr_code.make()
         qr_bitmap = self.bitmap_qr(qr_code.matrix)
         palette = displayio.Palette(2)

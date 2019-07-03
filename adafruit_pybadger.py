@@ -213,6 +213,7 @@ class PyBadger:
     def brightness(self, value):
         self.display.brightness = value
 
+    # pylint: disable=too-many-arguments,too-many-locals
     def show_business_card(self, image_name=None, email_string=None,
                            email_scale=1, email_font=terminalio.FONT, dwell=20):
         """Display a bitmap image and a text string, such as a personal image and email address.

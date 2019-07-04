@@ -213,12 +213,12 @@ class PyBadger:
     def brightness(self, value):
         self.display.brightness = value
 
-    # pylint: disable=too-many-arguments,too-many-locals
-    def show_business_card(self, image_name=None, email_string=None,
+    def show_business_card(self, *, image_name=None, email_string=None,
                            email_scale=1, email_font=terminalio.FONT, dwell=20):
         """Display a bitmap image and a text string, such as a personal image and email address.
 
-        :param str image_name: The name of the bitmap image including .bmp, e.g. ``"Blinka.bmp"``.
+        :param str image_name: REQUIRED. The name of the bitmap image including .bmp, e.g.
+                               ``"Blinka.bmp"``.
         :param str email_string: A string to display along the bottom of the display, e.g.
                                  ``"blinka@adafruit.com"``.
         :param int email_scale: The scale of ``email_string``. Defaults to 1.
@@ -233,14 +233,15 @@ class PyBadger:
             face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
             business_card_splash.append(face_image)
             self.display.wait_for_frame()
-        email_group = displayio.Group(scale=email_scale)
-        email_label = Label(email_font, text=email_string)
-        (_, _, width, height) = email_label.bounding_box
-        email_label.x = ((self.display.width // (2 * email_scale)) - width // 2)
-        email_label.y = int(height // (0.13 * email_scale))
-        email_label.color = 0xFFFFFF
-        email_group.append(email_label)
-        business_card_splash.append(email_group)
+        if email_string is not None and len(email_string) > 0:
+            email_group = displayio.Group(scale=email_scale)
+            email_label = Label(email_font, text=email_string)
+            (_, _, width, height) = email_label.bounding_box
+            email_label.x = ((self.display.width // (2 * email_scale)) - width // 2)
+            email_label.y = int(height // (0.13 * email_scale))
+            email_label.color = 0xFFFFFF
+            email_group.append(email_label)
+            business_card_splash.append(email_group)
         time.sleep(dwell)
 
     # pylint: disable=too-many-locals
@@ -339,7 +340,7 @@ class PyBadger:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, data="https://circuitpython.org", dwell=20):
+    def show_qr_code(self, *, data="https://circuitpython.org", dwell=20):
         """Generate a QR code and display it for ``dwell`` seconds.
 
         :param string data: A string of data for the QR code

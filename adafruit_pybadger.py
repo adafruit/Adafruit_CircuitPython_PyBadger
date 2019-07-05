@@ -213,6 +213,7 @@ class PyBadger:
     def brightness(self, value):
         self.display.brightness = value
 
+    # pylint: disable=too-many-locals
     def show_business_card(self, *, image_name=None, email_string=None,
                            email_scale=1, email_font=terminalio.FONT, dwell=20):
         """Display a bitmap image and a text string, such as a personal image and email address.
@@ -233,7 +234,7 @@ class PyBadger:
             face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
             business_card_splash.append(face_image)
             self.display.wait_for_frame()
-        if email_string is not None and len(email_string) > 0:
+        if email_string is not None and email_string:
             email_group = displayio.Group(scale=email_scale)
             email_label = Label(email_font, text=email_string)
             (_, _, width, height) = email_label.bounding_box
@@ -271,7 +272,6 @@ class PyBadger:
                             "Blinka".
 
         """
-        # Make the Display Background
         splash = displayio.Group(max_size=20)
 
         color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
@@ -283,8 +283,6 @@ class PyBadger:
                                        x=0, y=0)
         splash.append(bg_sprite)
 
-        # Draw a Foreground Rectangle where the name goes
-        # x, y, width, height
         rect = Rect(0, (int(self.display.height * 0.4)), self.display.width,
                     (int(self.display.height * 0.5)), fill=foreground_color)
         splash.append(rect)

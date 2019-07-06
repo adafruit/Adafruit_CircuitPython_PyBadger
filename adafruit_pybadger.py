@@ -214,17 +214,30 @@ class PyBadger:
         self.display.brightness = value
 
     # pylint: disable=too-many-locals
-    def show_business_card(self, *, image_name=None, email_string=None,
-                           email_scale=1, email_font=terminalio.FONT, dwell=20):
+    def show_business_card(self, *, image_name=None, name_string=None, name_scale=1,
+                           name_font=terminalio.FONT, email_string_one=None,
+                           email_scale_one=1, email_font_one=terminalio.FONT,
+                           email_string_two=None, email_scale_two=1,
+                           email_font_two=terminalio.FONT):
         """Display a bitmap image and a text string, such as a personal image and email address.
 
         :param str image_name: REQUIRED. The name of the bitmap image including .bmp, e.g.
                                ``"Blinka.bmp"``.
-        :param str email_string: A string to display along the bottom of the display, e.g.
+        :param str name_string: A name string to display along the bottom of the display, e.g.
+                                 ``"Blinka"``.
+        :param int name_scale: The scale of ``name_string``. Defaults to 1.
+        :param name_font: The font for the name string. Defaults to ``terminalio.FONT``.
+        :param str email_string_one: A string to display along the bottom of the display, e.g.
                                  ``"blinka@adafruit.com"``.
-        :param int email_scale: The scale of ``email_string``. Defaults to 1.
-        :param email_font: The font for the email string. Defaults to ``terminalio.FONT``.
-        :param int dwell: The amount of time in seconds to display the business card.
+        :param int email_scale_one: The scale of ``email_string_one``. Defaults to 1.
+        :param email_font_one: The font for the first email string. Defaults to ``terminalio.FONT``.
+        :param str email_string_two: A second string to display along the bottom of the display.
+                                     Use if your email address is longer than one line or to add
+                                     more space between the name and email address,
+                                     e.g. (blinka@) ``"adafruit.com"``.
+        :param int email_scale_two: The scale of ``email_string_two``. Defaults to 1.
+        :param email_font_two: The font for the second email string. Defaults to
+                               ``terminalio.FONT``.
 
         """
         business_card_splash = displayio.Group(max_size=30)
@@ -234,16 +247,35 @@ class PyBadger:
             face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
             business_card_splash.append(face_image)
             self.display.wait_for_frame()
-        if email_string is not None and email_string:
-            email_group = displayio.Group(scale=email_scale)
-            email_label = Label(email_font, text=email_string)
-            (_, _, width, height) = email_label.bounding_box
-            email_label.x = ((self.display.width // (2 * email_scale)) - width // 2)
-            email_label.y = int(height // (0.13 * email_scale))
-            email_label.color = 0xFFFFFF
-            email_group.append(email_label)
-            business_card_splash.append(email_group)
-        time.sleep(dwell)
+        if name_string:
+            name_group = displayio.Group(scale=name_scale)
+            name_label = Label(name_font, text=name_string)
+            (_, _, width, height) = name_label.bounding_box
+            name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
+            name_label.y = int(height // (0.15 * name_scale))
+            name_label.color = 0xFFFFFF
+            name_group.append(name_label)
+            business_card_splash.append(name_group)
+        if email_string_one:
+            email_group_one = displayio.Group(scale=email_scale_one)
+            email_label_one = Label(email_font_one, text=email_string_one)
+            (_, _, width, height) = email_label_one.bounding_box
+            email_label_one.width = self.display.width
+            email_label_one.x = ((self.display.width // (2 * email_scale_one)) - width // 2)
+            email_label_one.y = int(height // (0.13 * email_scale_one))
+            email_label_one.color = 0xFFFFFF
+            email_group_one.append(email_label_one)
+            business_card_splash.append(email_group_one)
+        if email_string_two:
+            email_group_two = displayio.Group(scale=email_scale_two)
+            email_label_two = Label(email_font_two, text=email_string_two)
+            (_, _, width, height) = email_label_two.bounding_box
+            email_label_two.width = self.display.width
+            email_label_two.x = ((self.display.width // (2 * email_scale_two)) - width // 2)
+            email_label_two.y = int(height // (0.12 * email_scale_two))
+            email_label_two.color = 0xFFFFFF
+            email_group_two.append(email_label_two)
+            business_card_splash.append(email_group_two)
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
@@ -289,7 +321,6 @@ class PyBadger:
 
         hello_scale = hello_scale
         hello_group = displayio.Group(scale=hello_scale)
-        # Setup and Center the Hello Label
         hello_label = Label(font=hello_font, text=hello_string)
         (_, _, width, height) = hello_label.bounding_box
         hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
@@ -299,7 +330,6 @@ class PyBadger:
 
         my_name_is_scale = my_name_is_scale
         my_name_is_group = displayio.Group(scale=my_name_is_scale)
-        # Setup and Center the "My Name Is" Label
         my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string)
         (_, _, width, height) = my_name_is_label.bounding_box
         my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
@@ -309,7 +339,6 @@ class PyBadger:
 
         name_scale = name_scale
         name_group = displayio.Group(scale=name_scale)
-        # Setup and Center the Name Label
         name_label = Label(font=name_font, text=name_string)
         (_, _, width, height) = name_label.bounding_box
         name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
@@ -338,7 +367,7 @@ class PyBadger:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, *, data="https://circuitpython.org", dwell=20):
+    def show_qr_code(self, *, data="https://circuitpython.org"):
         """Generate a QR code and display it for ``dwell`` seconds.
 
         :param string data: A string of data for the QR code
@@ -361,7 +390,6 @@ class PyBadger:
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
         self.display.show(qr_code)
-        time.sleep(dwell)
 
     @staticmethod
     def _sine_sample(length):

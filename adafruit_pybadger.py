@@ -87,14 +87,12 @@ class PyBadger:
             if i2c is None:
                 i2c = board.I2C()
             int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-        except RuntimeError:
-            self._accelerometer = None
-
-        if i2c is not None:
             try:
                 self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
             except ValueError:
                 self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+        except RuntimeError:
+            self._accelerometer = None
 
         # Buttons
         self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),

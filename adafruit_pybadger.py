@@ -84,12 +84,17 @@ class PyBadger:
     def __init__(self, i2c=None):
         # Accelerometer
         if i2c is None:
-            i2c = board.I2C()
-        int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-        try:
-            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
-        except ValueError:
-            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+            try:
+                i2c = board.I2C()
+            except RuntimeError:
+                self._accelerometer = None
+
+        if i2c is not None:
+            int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
+            try:
+                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+            except ValueError:
+                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
         # Buttons
         self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
@@ -202,7 +207,7 @@ class PyBadger:
     @property
     def acceleration(self):
         """Accelerometer data."""
-        return self._accelerometer.acceleration
+        return self._accelerometer.acceleration if self._accelerometer is not None else None
 
     @property
     def brightness(self):

@@ -207,10 +207,7 @@ class PyBadger:
     @property
     def acceleration(self):
         """Accelerometer data."""
-        acceleration = None
-        if self._accelerometer is not None:
-            acceleration = self._accelerometer.acceleration
-        return acceleration
+        return self._accelerometer.acceleration if self._accelerometer is not None else None
 
     @property
     def brightness(self):

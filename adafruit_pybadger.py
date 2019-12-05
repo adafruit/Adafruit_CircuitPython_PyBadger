@@ -361,6 +361,12 @@ class PyBadger:
         group.append(name_group)
         self.display.show(group)
 
+    def show_terminal(self):
+        """Revert to terminalio screen.
+
+        """
+        self.display.show(None)
+
     @staticmethod
     def bitmap_qr(matrix):
         """The QR code bitmap."""

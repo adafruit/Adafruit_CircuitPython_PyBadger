@@ -103,7 +103,7 @@ class PyBadger:
 
         # Display
         self.display = board.DISPLAY
-        self._brightness_value = 1.0
+        self._display_brightness = 1.0
 
         # Light sensor
         self._light_sensor = analogio.AnalogIn(board.A7)
@@ -155,7 +155,7 @@ class PyBadger:
                 self.display.brightness = 0.1
                 self._start_time = current_time
         else:
-            self.display.brightness = self._brightness_value
+            self.display.brightness = self._display_brightness
 
     @property
     def pixels(self):
@@ -217,7 +217,7 @@ class PyBadger:
 
     @brightness.setter
     def brightness(self, value):
-        self._brightness_value = value
+        self._display_brightness = value
         self.display.brightness = value
 
     # pylint: disable=too-many-locals

@@ -81,7 +81,7 @@ class PyBadger:
     BUTTON_A = const(2)
     BUTTON_B = const(1)
 
-    def __init__(self, i2c=None):
+    def __init__(self, i2c=None, *, pixels_brightness=1.0):
         # Accelerometer
         if i2c is None:
             try:
@@ -103,6 +103,7 @@ class PyBadger:
 
         # Display
         self.display = board.DISPLAY
+        self._display_brightness = 1.0
 
         # Light sensor
         self._light_sensor = analogio.AnalogIn(board.A7)
@@ -116,7 +117,7 @@ class PyBadger:
         # Count is hardcoded - should be based on board ID, currently no board info for PyBadge LC
         neopixel_count = 5
         self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, neopixel_count,
-                                            pixel_order=neopixel.GRB)
+                                            brightness=pixels_brightness, pixel_order=neopixel.GRB)
 
         # Auto dim display based on movement
         self._last_accelerometer = None
@@ -154,7 +155,7 @@ class PyBadger:
                 self.display.brightness = 0.1
                 self._start_time = current_time
         else:
-            self.display.brightness = 1
+            self.display.brightness = self._display_brightness
 
     @property
     def pixels(self):
@@ -206,7 +207,7 @@ class PyBadger:
 
     @property
     def acceleration(self):
-        """Accelerometer data."""
+        """Accelerometer data, +/- 2G sensitivity."""
         return self._accelerometer.acceleration if self._accelerometer is not None else None
 
     @property
@@ -216,6 +217,7 @@ class PyBadger:
 
     @brightness.setter
     def brightness(self, value):
+        self._display_brightness = value
         self.display.brightness = value
 
     # pylint: disable=too-many-locals

@@ -117,7 +117,7 @@ class PyBadger:
         # Count is hardcoded - should be based on board ID, currently no board info for PyBadge LC
         neopixel_count = 5
         self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, neopixel_count,
-                                brightness=pixels_brightness, pixel_order=neopixel.GRB)
+                                            brightness=pixels_brightness, pixel_order=neopixel.GRB)
 
         # Auto dim display based on movement
         self._last_accelerometer = None

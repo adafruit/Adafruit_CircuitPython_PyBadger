@@ -260,29 +260,29 @@ class PyBadger:
         if name_string:
             name_group = displayio.Group(scale=name_scale)
             name_label = Label(name_font, text=name_string)
-            (_, _, width, height) = name_label.bounding_box
+            (_, _, width, _) = name_label.bounding_box
             name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
-            name_label.y = int(height // (0.15 * name_scale))
+            name_label.y = int(self.display.height * (0.73 / name_scale))
             name_label.color = 0xFFFFFF
             name_group.append(name_label)
             business_card_splash.append(name_group)
         if email_string_one:
             email_group_one = displayio.Group(scale=email_scale_one)
             email_label_one = Label(email_font_one, text=email_string_one)
-            (_, _, width, height) = email_label_one.bounding_box
+            (_, _, width, _) = email_label_one.bounding_box
             email_label_one.width = self.display.width
             email_label_one.x = ((self.display.width // (2 * email_scale_one)) - width // 2)
-            email_label_one.y = int(height // (0.13 * email_scale_one))
+            email_label_one.y = int(self.display.height * (0.84 / email_scale_one))
             email_label_one.color = 0xFFFFFF
             email_group_one.append(email_label_one)
             business_card_splash.append(email_group_one)
         if email_string_two:
             email_group_two = displayio.Group(scale=email_scale_two)
             email_label_two = Label(email_font_two, text=email_string_two)
-            (_, _, width, height) = email_label_two.bounding_box
+            (_, _, width, _) = email_label_two.bounding_box
             email_label_two.width = self.display.width
             email_label_two.x = ((self.display.width // (2 * email_scale_two)) - width // 2)
-            email_label_two.y = int(height // (0.12 * email_scale_two))
+            email_label_two.y = int(self.display.height * (0.91 / email_scale_two))
             email_label_two.color = 0xFFFFFF
             email_group_two.append(email_label_two)
             business_card_splash.append(email_group_two)

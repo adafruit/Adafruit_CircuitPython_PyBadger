@@ -272,7 +272,7 @@ class PyBadger:
             if isinstance(name_font, str):
                 name_font = load_font(name_font, name_string)
             name_group = displayio.Group(scale=name_scale)
-            name_label = Label(name_font, text=name_string)
+            name_label = Label(name_font, text=name_string, line_spacing=0.75)
             (_, _, width, _) = name_label.bounding_box
             name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
             name_label.y = int(self.display.height * (0.73 / name_scale))
@@ -283,7 +283,7 @@ class PyBadger:
             if isinstance(email_font_one, str):
                 email_font_one = load_font(email_font_one, email_string_one)
             email_group_one = displayio.Group(scale=email_scale_one)
-            email_label_one = Label(email_font_one, text=email_string_one)
+            email_label_one = Label(email_font_one, text=email_string_one, line_spacing=0.75)
             (_, _, width, _) = email_label_one.bounding_box
             email_label_one.width = self.display.width
             email_label_one.x = ((self.display.width // (2 * email_scale_one)) - width // 2)
@@ -295,7 +295,7 @@ class PyBadger:
             if isinstance(email_font_two, str):
                 email_font_two = load_font(email_font_two, email_string_two)
             email_group_two = displayio.Group(scale=email_scale_two)
-            email_label_two = Label(email_font_two, text=email_string_two)
+            email_label_two = Label(email_font_two, text=email_string_two, line_spacing=0.75)
             (_, _, width, _) = email_label_two.bounding_box
             email_label_two.width = self.display.width
             email_label_two.x = ((self.display.width // (2 * email_scale_two)) - width // 2)
@@ -349,7 +349,7 @@ class PyBadger:
         if isinstance(hello_font, str):
             hello_font = load_font(hello_font, hello_string)
         hello_group = displayio.Group(scale=hello_scale)
-        hello_label = Label(font=hello_font, text=hello_string)
+        hello_label = Label(font=hello_font, text=hello_string, line_spacing=0.75)
         (_, _, width, _) = hello_label.bounding_box
         hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
         hello_label.y = int(self.display.height * (0.117 / hello_scale))
@@ -359,7 +359,7 @@ class PyBadger:
         if isinstance(my_name_is_font, str):
             my_name_is_font = load_font(my_name_is_font, my_name_is_string)
         my_name_is_group = displayio.Group(scale=my_name_is_scale)
-        my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string)
+        my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string, line_spacing=0.75)
         (_, _, width, _) = my_name_is_label.bounding_box
         my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
         my_name_is_label.y = int(self.display.height * (0.28 / my_name_is_scale))

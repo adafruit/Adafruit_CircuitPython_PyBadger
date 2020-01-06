@@ -51,11 +51,11 @@ from collections import namedtuple
 import board
 from micropython import const
 import digitalio
+import analogio
 import audioio
 import displayio
 from gamepadshift import GamePadShift
 import neopixel
-import analogio
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text.label import Label
 from adafruit_bitmap_font import bitmap_font

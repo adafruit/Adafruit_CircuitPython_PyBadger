@@ -205,6 +205,7 @@ class PyBadger:
                 print("Button select")
 
         """
+        #pylint: disable=no-else-return
         button_values = self._buttons.get_pressed()
         if hasattr(board, "JOYSTICK_X"):
             x, y = self.joystick

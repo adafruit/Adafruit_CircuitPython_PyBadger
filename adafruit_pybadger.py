@@ -205,11 +205,24 @@ class PyBadger:
                 print("Button select")
 
         """
+        #pylint: disable=no-else-return
         button_values = self._buttons.get_pressed()
-        return Buttons(*[button_values & button for button in
-                         (PyBadger.BUTTON_B, PyBadger.BUTTON_A, PyBadger.BUTTON_START,
-                          PyBadger.BUTTON_SELECT, PyBadger.BUTTON_RIGHT,
-                          PyBadger.BUTTON_DOWN, PyBadger.BUTTON_UP, PyBadger.BUTTON_LEFT)])
+        if hasattr(board, "JOYSTICK_X"):
+            x, y = self.joystick
+            return Buttons(button_values & PyBadger.BUTTON_B,
+                           button_values & PyBadger.BUTTON_A,
+                           button_values & PyBadger.BUTTON_START,
+                           button_values & PyBadger.BUTTON_SELECT,
+                           x > 50000, # RIGHT
+                           y > 50000, # DOWN
+                           y < 15000, # UP
+                           x < 15000  # LEFT
+                          )
+        else:
+            return Buttons(*[button_values & button for button in
+                             (PyBadger.BUTTON_B, PyBadger.BUTTON_A, PyBadger.BUTTON_START,
+                              PyBadger.BUTTON_SELECT, PyBadger.BUTTON_RIGHT,
+                              PyBadger.BUTTON_DOWN, PyBadger.BUTTON_UP, PyBadger.BUTTON_LEFT)])
 
     @property
     def light(self):

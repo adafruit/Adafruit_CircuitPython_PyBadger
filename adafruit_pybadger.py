@@ -141,11 +141,14 @@ class PyBadger:
         self._sine_wave = None
         self._sine_wave_sample = None
 
-    def _create_label_group(self, text, font, scale, height_adjustment, color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
-        """Create a label group with the given text, font, scale, and spacing."""
+    # pylint: disable=too-many-arguments
+    def _create_label_group(self, text, font,
+                            scale, height_adjustment,
+                            color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
+        """Create a label group with the given text, font, and spacing"""
         # If the given font is a string, treat it as a file path and try to load it
         if isinstance(font, str):
-            font = load_font(font)
+            font = load_font(font, text)
 
         group = displayio.Group(scale=scale)
         label = Label(font, text=text, line_spacing=line_spacing)

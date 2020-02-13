@@ -358,35 +358,23 @@ class PyBadger:
                     (int(self.display.height * 0.5)), fill=foreground_color)
         splash.append(rect)
 
-        if isinstance(hello_font, str):
-            hello_font = load_font(hello_font, hello_string)
-        hello_group = displayio.Group(scale=hello_scale)
-        hello_label = Label(font=hello_font, text=hello_string, line_spacing=0.75)
-        (_, _, width, _) = hello_label.bounding_box
-        hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
-        hello_label.y = int(self.display.height * (0.117 / hello_scale))
-        hello_label.color = background_text_color
-        hello_group.append(hello_label)
+        hello_group = self._create_label_group(text=hello_string,
+                                               font=hello_font,
+                                               scale=hello_scale,
+                                               height_adjustment=0.117,
+                                               color=background_text_color)
 
-        if isinstance(my_name_is_font, str):
-            my_name_is_font = load_font(my_name_is_font, my_name_is_string)
-        my_name_is_group = displayio.Group(scale=my_name_is_scale)
-        my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string, line_spacing=0.75)
-        (_, _, width, _) = my_name_is_label.bounding_box
-        my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
-        my_name_is_label.y = int(self.display.height * (0.28 / my_name_is_scale))
-        my_name_is_label.color = background_text_color
-        my_name_is_group.append(my_name_is_label)
+        my_name_is_group = self._create_label_group(text=my_name_is_string,
+                                                    font=my_name_is_font,
+                                                    scale=my_name_is_scale,
+                                                    height_adjustment=0.28,
+                                                    color=background_text_color)
 
-        if isinstance(name_font, str):
-            name_font = load_font(name_font, name_string)
-        name_group = displayio.Group(scale=name_scale)
-        name_label = Label(font=name_font, text=name_string, line_spacing=0.75)
-        (_, _, width, _) = name_label.bounding_box
-        name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
-        name_label.y = int(self.display.height * (0.65 / name_scale))
-        name_label.color = foreground_text_color
-        name_group.append(name_label)
+        name_group = self._create_label_group(text=name_string,
+                                              font=name_font,
+                                              scale=name_scale,
+                                              height_adjustment=0.65,
+                                              color=foreground_text_color)
 
         group = displayio.Group()
         group.append(splash)

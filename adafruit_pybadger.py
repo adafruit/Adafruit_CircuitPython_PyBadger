@@ -141,6 +141,21 @@ class PyBadger:
         self._sine_wave = None
         self._sine_wave_sample = None
 
+    def _create_label_group(self, text, font, scale, height_adjustment, color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
+        """Create a label group with the given text, font, scale, and spacing."""
+        # If the given font is a string, treat it as a file path and try to load it
+        if isinstance(font, str):
+            font = load_font(font)
+
+        group = displayio.Group(scale=scale)
+        label = Label(font, text=text, line_spacing=line_spacing)
+        _, _, width, _ = label.bounding_box
+        label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
+        label.y = int(self.display.height * (height_adjustment / scale))
+        label.color = color
+        group.append(label)
+        return group
+
     def _check_for_movement(self, movement_threshold=10):
         """Checks to see if board is moving. Used to auto-dim display when not moving."""
         current_accelerometer = self.acceleration

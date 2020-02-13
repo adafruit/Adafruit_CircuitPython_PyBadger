@@ -296,41 +296,25 @@ class PyBadger:
                 self.display.refresh(target_frames_per_second=60)
             except AttributeError:
                 self.display.wait_for_frame()
+
         if name_string:
-            if isinstance(name_font, str):
-                name_font = load_font(name_font, name_string)
-            name_group = displayio.Group(scale=name_scale)
-            name_label = Label(name_font, text=name_string, line_spacing=0.75)
-            (_, _, width, _) = name_label.bounding_box
-            name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
-            name_label.y = int(self.display.height * (0.73 / name_scale))
-            name_label.color = 0xFFFFFF
-            name_group.append(name_label)
+            name_group = self._create_label_group(text=name_string,
+                                                  font=name_font,
+                                                  scale=name_scale,
+                                                  height_adjustment=0.73)
             business_card_splash.append(name_group)
         if email_string_one:
-            if isinstance(email_font_one, str):
-                email_font_one = load_font(email_font_one, email_string_one)
-            email_group_one = displayio.Group(scale=email_scale_one)
-            email_label_one = Label(email_font_one, text=email_string_one, line_spacing=0.75)
-            (_, _, width, _) = email_label_one.bounding_box
-            email_label_one.width = self.display.width
-            email_label_one.x = ((self.display.width // (2 * email_scale_one)) - width // 2)
-            email_label_one.y = int(self.display.height * (0.84 / email_scale_one))
-            email_label_one.color = 0xFFFFFF
-            email_group_one.append(email_label_one)
-            business_card_splash.append(email_group_one)
+            email_one_group = self._create_label_group(text=email_string_one,
+                                                       font=email_font_one,
+                                                       scale=email_scale_one,
+                                                       height_adjustment=0.84)
+            business_card_splash.append(email_one_group)
         if email_string_two:
-            if isinstance(email_font_two, str):
-                email_font_two = load_font(email_font_two, email_string_two)
-            email_group_two = displayio.Group(scale=email_scale_two)
-            email_label_two = Label(email_font_two, text=email_string_two, line_spacing=0.75)
-            (_, _, width, _) = email_label_two.bounding_box
-            email_label_two.width = self.display.width
-            email_label_two.x = ((self.display.width // (2 * email_scale_two)) - width // 2)
-            email_label_two.y = int(self.display.height * (0.91 / email_scale_two))
-            email_label_two.color = 0xFFFFFF
-            email_group_two.append(email_label_two)
-            business_card_splash.append(email_group_two)
+            email_two_group = self._create_label_group(text=email_string_two,
+                                                       font=email_font_two,
+                                                       scale=email_scale_two,
+                                                       height_adjustment=0.91)
+            business_card_splash.append(email_two_group)
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,

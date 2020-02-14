@@ -295,10 +295,7 @@ class PyBadger:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)
             face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
             business_card_splash.append(face_image)
-            try:
-                self.display.refresh(target_frames_per_second=60)
-            except AttributeError:
-                self.display.wait_for_frame()
+            self.display.refresh()
 
         business_card_label_groups = []
         if name_string:

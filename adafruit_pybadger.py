@@ -289,7 +289,7 @@ class PyBadger:
                                ``terminalio.FONT``.
 
         """
-        business_card_splash = displayio.Group(max_size=30)
+        business_card_splash = displayio.Group(max_size=4)
         self.display.show(business_card_splash)
         with open(image_name, "rb") as file_name:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)

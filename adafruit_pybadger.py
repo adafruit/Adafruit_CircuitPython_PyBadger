@@ -289,14 +289,6 @@ class PyBadger:
                                ``terminalio.FONT``.
 
         """
-        business_card_splash = displayio.Group(max_size=4)
-        self.display.show(business_card_splash)
-        with open(image_name, "rb") as file_name:
-            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
-            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
-            business_card_splash.append(face_image)
-            self.display.refresh()
-
         business_card_label_groups = []
         if name_string:
             name_group = self._create_label_group(text=name_string,
@@ -317,8 +309,15 @@ class PyBadger:
                                                        height_adjustment=0.91)
             business_card_label_groups.append(email_two_group)
 
-        for group in business_card_label_groups:
-            business_card_splash.append(group)
+        business_card_splash = displayio.Group(max_size=4)
+        self.display.show(business_card_splash)
+        with open(image_name, "rb") as file_name:
+            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
+            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
+            business_card_splash.append(face_image)
+            for group in business_card_label_groups:
+                business_card_splash.append(group)
+            self.display.refresh()
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,

@@ -141,6 +141,24 @@ class PyBadger:
         self._sine_wave = None
         self._sine_wave_sample = None
 
+    # pylint: disable=too-many-arguments
+    def _create_label_group(self, text, font,
+                            scale, height_adjustment,
+                            color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
+        """Create a label group with the given text, font, and spacing"""
+        # If the given font is a string, treat it as a file path and try to load it
+        if isinstance(font, str):
+            font = load_font(font, text)
+
+        group = displayio.Group(scale=scale)
+        label = Label(font, text=text, line_spacing=line_spacing)
+        _, _, width, _ = label.bounding_box
+        label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
+        label.y = int(self.display.height * (height_adjustment / scale))
+        label.color = color
+        group.append(label)
+        return group
+
     def _check_for_movement(self, movement_threshold=10):
         """Checks to see if board is moving. Used to auto-dim display when not moving."""
         current_accelerometer = self.acceleration
@@ -281,41 +299,25 @@ class PyBadger:
                 self.display.refresh(target_frames_per_second=60)
             except AttributeError:
                 self.display.wait_for_frame()
+
         if name_string:
-            if isinstance(name_font, str):
-                name_font = load_font(name_font, name_string)
-            name_group = displayio.Group(scale=name_scale)
-            name_label = Label(name_font, text=name_string, line_spacing=0.75)
-            (_, _, width, _) = name_label.bounding_box
-            name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
-            name_label.y = int(self.display.height * (0.73 / name_scale))
-            name_label.color = 0xFFFFFF
-            name_group.append(name_label)
+            name_group = self._create_label_group(text=name_string,
+                                                  font=name_font,
+                                                  scale=name_scale,
+                                                  height_adjustment=0.73)
             business_card_splash.append(name_group)
         if email_string_one:
-            if isinstance(email_font_one, str):
-                email_font_one = load_font(email_font_one, email_string_one)
-            email_group_one = displayio.Group(scale=email_scale_one)
-            email_label_one = Label(email_font_one, text=email_string_one, line_spacing=0.75)
-            (_, _, width, _) = email_label_one.bounding_box
-            email_label_one.width = self.display.width
-            email_label_one.x = ((self.display.width // (2 * email_scale_one)) - width // 2)
-            email_label_one.y = int(self.display.height * (0.84 / email_scale_one))
-            email_label_one.color = 0xFFFFFF
-            email_group_one.append(email_label_one)
-            business_card_splash.append(email_group_one)
+            email_one_group = self._create_label_group(text=email_string_one,
+                                                       font=email_font_one,
+                                                       scale=email_scale_one,
+                                                       height_adjustment=0.84)
+            business_card_splash.append(email_one_group)
         if email_string_two:
-            if isinstance(email_font_two, str):
-                email_font_two = load_font(email_font_two, email_string_two)
-            email_group_two = displayio.Group(scale=email_scale_two)
-            email_label_two = Label(email_font_two, text=email_string_two, line_spacing=0.75)
-            (_, _, width, _) = email_label_two.bounding_box
-            email_label_two.width = self.display.width
-            email_label_two.x = ((self.display.width // (2 * email_scale_two)) - width // 2)
-            email_label_two.y = int(self.display.height * (0.91 / email_scale_two))
-            email_label_two.color = 0xFFFFFF
-            email_group_two.append(email_label_two)
-            business_card_splash.append(email_group_two)
+            email_two_group = self._create_label_group(text=email_string_two,
+                                                       font=email_font_two,
+                                                       scale=email_scale_two,
+                                                       height_adjustment=0.91)
+            business_card_splash.append(email_two_group)
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
@@ -359,35 +361,23 @@ class PyBadger:
                     (int(self.display.height * 0.5)), fill=foreground_color)
         splash.append(rect)
 
-        if isinstance(hello_font, str):
-            hello_font = load_font(hello_font, hello_string)
-        hello_group = displayio.Group(scale=hello_scale)
-        hello_label = Label(font=hello_font, text=hello_string, line_spacing=0.75)
-        (_, _, width, _) = hello_label.bounding_box
-        hello_label.x = ((self.display.width // (2 * hello_scale)) - width // 2)
-        hello_label.y = int(self.display.height * (0.117 / hello_scale))
-        hello_label.color = background_text_color
-        hello_group.append(hello_label)
+        hello_group = self._create_label_group(text=hello_string,
+                                               font=hello_font,
+                                               scale=hello_scale,
+                                               height_adjustment=0.117,
+                                               color=background_text_color)
 
-        if isinstance(my_name_is_font, str):
-            my_name_is_font = load_font(my_name_is_font, my_name_is_string)
-        my_name_is_group = displayio.Group(scale=my_name_is_scale)
-        my_name_is_label = Label(font=my_name_is_font, text=my_name_is_string, line_spacing=0.75)
-        (_, _, width, _) = my_name_is_label.bounding_box
-        my_name_is_label.x = ((self.display.width // (2 * my_name_is_scale)) - width // 2)
-        my_name_is_label.y = int(self.display.height * (0.28 / my_name_is_scale))
-        my_name_is_label.color = background_text_color
-        my_name_is_group.append(my_name_is_label)
+        my_name_is_group = self._create_label_group(text=my_name_is_string,
+                                                    font=my_name_is_font,
+                                                    scale=my_name_is_scale,
+                                                    height_adjustment=0.28,
+                                                    color=background_text_color)
 
-        if isinstance(name_font, str):
-            name_font = load_font(name_font, name_string)
-        name_group = displayio.Group(scale=name_scale)
-        name_label = Label(font=name_font, text=name_string, line_spacing=0.75)
-        (_, _, width, _) = name_label.bounding_box
-        name_label.x = ((self.display.width // (2 * name_scale)) - width // 2)
-        name_label.y = int(self.display.height * (0.65 / name_scale))
-        name_label.color = foreground_text_color
-        name_group.append(name_label)
+        name_group = self._create_label_group(text=name_string,
+                                              font=name_font,
+                                              scale=name_scale,
+                                              height_adjustment=0.65,
+                                              color=foreground_text_color)
 
         group = displayio.Group()
         group.append(splash)

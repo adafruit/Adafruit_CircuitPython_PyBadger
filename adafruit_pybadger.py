@@ -52,9 +52,11 @@ import board
 from micropython import const
 import digitalio
 import analogio
-import audioio
+try:
+    import audioio
+except ImportError:
+    import audiocore as audioio
 import displayio
-from gamepadshift import GamePadShift
 import neopixel
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text.label import Label
@@ -63,10 +65,15 @@ import terminalio
 import adafruit_miniqr
 import adafruit_lis3dh
 
+import adafruit_lsm6ds
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
-Buttons = namedtuple("Buttons", "b a start select right down up left")
+if hasattr(board, "BUTTON_SELECT"):
+    Buttons = namedtuple("Buttons", "b a start select right down up left")
+else:
+    Buttons = namedtuple("Buttons", "b a")
 
 def load_font(fontname, text):
     """Load a font and glyphs in the text string
@@ -100,17 +107,27 @@ class PyBadger:
             except RuntimeError:
                 self._accelerometer = None
 
-        if i2c is not None:
-            int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-            try:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
-            except ValueError:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+        if hasattr(board, "ACCELEROMETER_INTERRUPT"):
+            if i2c is not None:
+                int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
+                try:
+                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+                except ValueError:
+                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+        else:
+            if i2c is not None:
+                self._accelerometer = adafruit_lsm6ds.LSM6DS33(i2c)
 
         # Buttons
-        self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
-                                     digitalio.DigitalInOut(board.BUTTON_OUT),
-                                     digitalio.DigitalInOut(board.BUTTON_LATCH))
+        try:
+            from gamepadshift import GamePadShift
+            self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
+                                         digitalio.DigitalInOut(board.BUTTON_OUT),
+                                         digitalio.DigitalInOut(board.BUTTON_LATCH))
+        except ImportError:
+            from gamepad import GamePad
+            self._buttons = GamePad(digitalio.DigitalInOut(board.BUTTON_A),
+                                    digitalio.DigitalInOut(board.BUTTON_B))
 
         # Display
         self.display = board.DISPLAY
@@ -135,8 +152,11 @@ class PyBadger:
         self._start_time = time.monotonic()
 
         # Define audio:
-        self._speaker_enable = digitalio.DigitalInOut(board.SPEAKER_ENABLE)
-        self._speaker_enable.switch_to_output(value=False)
+        if hasattr(board, "SPEAKER_ENABLE"):
+            self._speaker_enable = digitalio.DigitalInOut(board.SPEAKER_ENABLE)
+            self._speaker_enable.switch_to_output(value=False)
+        else:
+            self._speaker_enable = None
         self._sample = None
         self._sine_wave = None
         self._sine_wave_sample = None
@@ -236,6 +256,9 @@ class PyBadger:
                            y < 15000, # UP
                            x < 15000  # LEFT
                           )
+        elif hasattr(board, "WHITE_LEDS"):
+            return Buttons(button_values & PyBadger.BUTTON_B,
+                           button_values & PyBadger.BUTTON_A)
         else:
             return Buttons(*[button_values & button for button in
                              (PyBadger.BUTTON_B, PyBadger.BUTTON_A, PyBadger.BUTTON_START,
@@ -500,3 +523,5 @@ class PyBadger:
             while audio.playing:
                 pass
         self._speaker_enable.value = False
+
+pybadger = PyBadger()

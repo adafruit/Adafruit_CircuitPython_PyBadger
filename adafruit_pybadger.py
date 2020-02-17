@@ -317,7 +317,12 @@ class PyBadger:
             business_card_splash.append(face_image)
             for group in business_card_label_groups:
                 business_card_splash.append(group)
-            self.display.refresh()
+            try:
+                # Refresh display in CircuitPython 5
+                self.display.refresh()
+            except AttributeError:
+                # Refresh display in CircuitPython 4
+                self.display.wait_for_frame()
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,

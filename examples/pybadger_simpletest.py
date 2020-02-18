@@ -1,6 +1,4 @@
-from adafruit_pybadger import PyBadger
-
-pybadger = PyBadger()
+from adafruit_pybadger import pybadger
 
 pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3)
 

@@ -407,10 +407,9 @@ class PyBadger:
         return bitmap
 
     def show_qr_code(self, *, data="https://circuitpython.org"):
-        """Generate a QR code and display it for ``dwell`` seconds.
+        """Generate a QR code and display it.
 
         :param string data: A string of data for the QR code
-        :param int dwell: The amount of time in seconds to display the QR code
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)

@@ -23,8 +23,8 @@
 `adafruit_pybadger.pybadge`
 ================================================================================
 
-Badge-focused CircuitPython helper library for PyBadge and PyBadge LC.
-Both boards are included in this module as there is no difference in the
+Badge-focused CircuitPython helper library for PyBadge, PyBadge LC and EdgeBadge.
+All three boards are included in this module as there is no difference in the
 CircuitPython builds at this time, and therefore no way to differentiate
 the boards from within CircuitPython.
 
@@ -38,6 +38,7 @@ Implementation Notes
 
 * `Adafruit PyBadge <https://www.adafruit.com/product/4200>`_
 * `Adafruit PyBadge LC <https://www.adafruit.com/product/3939>`_
+* `Adafruit EdgeBadge <https://www.adafruit.com/product/4400>`_
 
 **Software and Dependencies:**
 
@@ -47,10 +48,10 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import audioio
 import board
 import digitalio
 import analogio
+import audioio
 from gamepadshift import GamePadShift
 import adafruit_lis3dh
 from adafruit_pybadger.pybadger_base import PyBadgerBase
@@ -61,10 +62,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 Buttons = namedtuple("Buttons", "b a start select right down up left")
 
 class PyBadge(PyBadgerBase):
+    """Class that represents a single PyBadge, PyBadge LC, or EdgeBadge."""
+
     _audio_out = audioio.AudioOut
-
     _neopixel_count = 5
-
 
     def __init__(self):
         super().__init__()
@@ -120,5 +121,5 @@ class PyBadge(PyBadgerBase):
                           PyBadgerBase.BUTTON_RIGHT, PyBadgerBase.BUTTON_DOWN,
                           PyBadgerBase.BUTTON_UP, PyBadgerBase.BUTTON_LEFT)])
 
-pybadge = PyBadge()
+pybadge = PyBadge()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

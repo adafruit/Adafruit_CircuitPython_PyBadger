@@ -335,7 +335,6 @@ class PyBadgerBase:
         """Generate a QR code and display it for ``dwell`` seconds.
 
         :param string data: A string of data for the QR code
-        :param int dwell: The amount of time in seconds to display the QR code
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
@@ -402,7 +401,6 @@ class PyBadgerBase:
 
     def stop_tone(self):
         """ Use with start_tone to stop the tone produced.
-
         """
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:

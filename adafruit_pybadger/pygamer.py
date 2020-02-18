@@ -43,10 +43,10 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import audioio
 import board
 import analogio
 import digitalio
+import audioio
 from gamepadshift import GamePadShift
 import adafruit_lis3dh
 from adafruit_pybadger.pybadger_base import PyBadgerBase
@@ -57,8 +57,11 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 Buttons = namedtuple("Buttons", "b a start select")
 
 class PyGamer(PyBadgerBase):
+    """Class that represents a single PyGamer."""
+
     _audio_out = audioio.AudioOut
     _neopixel_count = 5
+
     def __init__(self):
         super().__init__()
 
@@ -116,5 +119,5 @@ class PyGamer(PyBadgerBase):
         y = self._pygamer_joystick_y.value
         return x, y
 
-pygamer = PyGamer()
+pygamer = PyGamer()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

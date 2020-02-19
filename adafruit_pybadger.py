@@ -289,35 +289,40 @@ class PyBadger:
                                ``terminalio.FONT``.
 
         """
-        business_card_splash = displayio.Group(max_size=30)
-        self.display.show(business_card_splash)
-        with open(image_name, "rb") as file_name:
-            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
-            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
-            business_card_splash.append(face_image)
-            try:
-                self.display.refresh(target_frames_per_second=60)
-            except AttributeError:
-                self.display.wait_for_frame()
-
+        business_card_label_groups = []
         if name_string:
             name_group = self._create_label_group(text=name_string,
                                                   font=name_font,
                                                   scale=name_scale,
                                                   height_adjustment=0.73)
-            business_card_splash.append(name_group)
+            business_card_label_groups.append(name_group)
         if email_string_one:
             email_one_group = self._create_label_group(text=email_string_one,
                                                        font=email_font_one,
                                                        scale=email_scale_one,
                                                        height_adjustment=0.84)
-            business_card_splash.append(email_one_group)
+            business_card_label_groups.append(email_one_group)
         if email_string_two:
             email_two_group = self._create_label_group(text=email_string_two,
                                                        font=email_font_two,
                                                        scale=email_scale_two,
                                                        height_adjustment=0.91)
-            business_card_splash.append(email_two_group)
+            business_card_label_groups.append(email_two_group)
+
+        business_card_splash = displayio.Group(max_size=4)
+        self.display.show(business_card_splash)
+        with open(image_name, "rb") as file_name:
+            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
+            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
+            business_card_splash.append(face_image)
+            for group in business_card_label_groups:
+                business_card_splash.append(group)
+            try:
+                # Refresh display in CircuitPython 5
+                self.display.refresh()
+            except AttributeError:
+                # Refresh display in CircuitPython 4
+                self.display.wait_for_frame()
 
     # pylint: disable=too-many-locals
     def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,

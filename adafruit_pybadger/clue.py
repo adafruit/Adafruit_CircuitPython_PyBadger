@@ -79,15 +79,15 @@ class Clue(PyBadgerBase):
 
         .. code-block:: python
 
-        from adafruit_pybadger import PyBadger
+          from adafruit_pybadger import PyBadger
 
-        pybadger = PyBadger()
+          pybadger = PyBadger()
 
-        while True:
-            if pybadger.button.a:
-                print("Button A")
-            elif pybadger.button.b:
-                print("Button B")
+          while True:
+              if pybadger.button.a:
+                  print("Button A")
+              elif pybadger.button.b:
+                  print("Button B")
         """
         button_values = self._buttons.get_pressed()
         return Buttons(button_values & PyBadgerBase.BUTTON_B,

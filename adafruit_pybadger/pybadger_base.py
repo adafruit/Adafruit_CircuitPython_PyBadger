@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_pybadger`
+`adafruit_pybadger.pybadger_base`
 ================================================================================
 
-Badge-focused CircuitPython helper library for PyBadge and PyGamer.
+Base class for badge-focused CircuitPython helper library.
 
 
 * Author(s): Kattni Rembor
@@ -33,6 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
+* `Adafruit CLUE <https://www.adafruit.com/product/4500>`_
 * `Adafruit PyBadge <https://www.adafruit.com/product/4200>`_
 * `Adafruit PyBadge LC <https://www.adafruit.com/product/3939>`_
 * `Adafruit PyGamer <https://www.adafruit.com/product/4277>`_

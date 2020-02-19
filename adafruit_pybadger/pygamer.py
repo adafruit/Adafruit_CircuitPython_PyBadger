@@ -90,19 +90,19 @@ class PyGamer(PyBadgerBase):
 
         .. code-block:: python
 
-        from adafruit_pybadger import PyBadger
+          from adafruit_pybadger import PyBadger
 
-        pybadger = PyBadger()
+          pybadger = PyBadger()
 
-        while True:
-            if pybadger.button.a:
-                print("Button A")
-            elif pybadger.button.b:
-                print("Button B")
-            elif pybadger.button.start:
-                print("Button start")
-            elif pybadger.button.select:
-                print("Button select")
+          while True:
+              if pybadger.button.a:
+                  print("Button A")
+              elif pybadger.button.b:
+                  print("Button B")
+              elif pybadger.button.start:
+                  print("Button start")
+              elif pybadger.button.select:
+                  print("Button select")
 
         """
         button_values = self._buttons.get_pressed()

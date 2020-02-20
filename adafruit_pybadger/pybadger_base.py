@@ -374,6 +374,11 @@ class PyBadgerBase:
         self._sample = self._audio_out(board.SPEAKER)  # pylint: disable=not-callable
         self._sine_wave_sample = audiocore.RawSample(self._sine_wave)
 
+    def _enable_speaker(self, enable):
+        if not hasattr(board, "SPEAKER_ENABLE"):
+            return
+        self._speaker_enable.value = enable
+
     def play_tone(self, frequency, duration):
         """ Produce a tone using the speaker. Try changing frequency to change
         the pitch of the tone.
@@ -394,8 +399,7 @@ class PyBadgerBase:
         :param int frequency: The frequency of the tone in Hz
 
         """
-        if hasattr(board, "SPEAKER_ENABLE"):
-            self._speaker_enable.value = True
+        self._enable_speaker(enable=True)
         length = 100
         if length * frequency > 350000:
             length = 350000 // frequency
@@ -413,8 +417,7 @@ class PyBadgerBase:
             self._sample.stop()
             self._sample.deinit()
             self._sample = None
-        if hasattr(board, "SPEAKER_ENABLE"):
-            self._speaker_enable.value = False
+        self._enable_speaker(enable=False)
 
     def play_file(self, file_name):
         """ Play a .wav file using the onboard speaker.
@@ -424,12 +427,10 @@ class PyBadgerBase:
         """
         # Play a specified file.
         self.stop_tone()
-        if hasattr(board, "SPEAKER_ENABLE"):
-            self._speaker_enable.value = True
+        self._enable_speaker(enable=True)
         with self._audio_out(board.SPEAKER) as audio:  # pylint: disable=not-callable
             wavefile = audiocore.WaveFile(open(file_name, "rb"))
             audio.play(wavefile)
             while audio.playing:
                 pass
-        if hasattr(board, "SPEAKER_ENABLE"):
-            self._speaker_enable.value = False
+        self._enable_speaker(enable=True)

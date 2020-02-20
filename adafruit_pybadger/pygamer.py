@@ -104,6 +104,7 @@ class PyGamer(PyBadgerBase):
 
         """
         button_values = self._buttons.get_pressed()
+        x, y = self.joystick
         return Buttons(button_values & PyBadgerBase.BUTTON_B,
                        button_values & PyBadgerBase.BUTTON_A,
                        button_values & PyBadgerBase.BUTTON_START,

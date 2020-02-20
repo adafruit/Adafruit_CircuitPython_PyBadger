@@ -1,6 +1,6 @@
 # The MIT License (MIT)
 #
-# Copyright (c) 2019 Kattni Rembor for Adafruit Industries
+# Copyright (c) 2019-2020 Kattni Rembor for Adafruit Industries
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_pybadger`
+`adafruit_pybadger.pybadger_base`
 ================================================================================
 
-Badge-focused CircuitPython helper library for PyBadge and PyGamer.
+Base class for badge-focused CircuitPython helper library.
 
 
 * Author(s): Kattni Rembor
@@ -33,6 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
+* `Adafruit CLUE <https://www.adafruit.com/product/4500>`_
 * `Adafruit PyBadge <https://www.adafruit.com/product/4200>`_
 * `Adafruit PyBadge LC <https://www.adafruit.com/product/3939>`_
 * `Adafruit PyGamer <https://www.adafruit.com/product/4277>`_
@@ -47,26 +48,23 @@ Implementation Notes
 import time
 import array
 import math
-from collections import namedtuple
 import board
 from micropython import const
 import digitalio
-import analogio
-import audioio
+try:
+    import audiocore
+except ImportError:
+    import audioio as audiocore
 import displayio
-from gamepadshift import GamePadShift
 import neopixel
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text.label import Label
 from adafruit_bitmap_font import bitmap_font
 import terminalio
 import adafruit_miniqr
-import adafruit_lis3dh
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
-
-Buttons = namedtuple("Buttons", "b a start select right down up left")
 
 def load_font(fontname, text):
     """Load a font and glyphs in the text string
@@ -80,8 +78,12 @@ def load_font(fontname, text):
     return font
 
 # pylint: disable=too-many-instance-attributes
-class PyBadger:
-    """PyBadger class."""
+class PyBadgerBase:
+    """PyBadger base class."""
+
+    _audio_out = None
+    _neopixel_count = None
+
     # Button Constants
     BUTTON_LEFT = const(128)
     BUTTON_UP = const(64)
@@ -92,42 +94,16 @@ class PyBadger:
     BUTTON_A = const(2)
     BUTTON_B = const(1)
 
-    def __init__(self, i2c=None, *, pixels_brightness=1.0):
-        # Accelerometer
-        if i2c is None:
-            try:
-                i2c = board.I2C()
-            except RuntimeError:
-                self._accelerometer = None
-
-        if i2c is not None:
-            int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-            try:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
-            except ValueError:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
-
-        # Buttons
-        self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
-                                     digitalio.DigitalInOut(board.BUTTON_OUT),
-                                     digitalio.DigitalInOut(board.BUTTON_LATCH))
+    def __init__(self, *, pixels_brightness=1.0):
+        self._light_sensor = None
+        self._accelerometer = None
 
         # Display
         self.display = board.DISPLAY
         self._display_brightness = 1.0
 
-        # Light sensor
-        self._light_sensor = analogio.AnalogIn(board.A7)
-
-        # PyGamer joystick
-        if hasattr(board, "JOYSTICK_X"):
-            self._pygamer_joystick_x = analogio.AnalogIn(board.JOYSTICK_X)
-            self._pygamer_joystick_y = analogio.AnalogIn(board.JOYSTICK_Y)
-
         # NeoPixels
-        # Count is hardcoded - should be based on board ID, currently no board info for PyBadge LC
-        neopixel_count = 5
-        self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, neopixel_count,
+        self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, self._neopixel_count,
                                             brightness=pixels_brightness, pixel_order=neopixel.GRB)
 
         # Auto dim display based on movement
@@ -135,8 +111,9 @@ class PyBadger:
         self._start_time = time.monotonic()
 
         # Define audio:
-        self._speaker_enable = digitalio.DigitalInOut(board.SPEAKER_ENABLE)
-        self._speaker_enable.switch_to_output(value=False)
+        if hasattr(board, "SPEAKER_ENABLE"):
+            self._speaker_enable = digitalio.DigitalInOut(board.SPEAKER_ENABLE)
+            self._speaker_enable.switch_to_output(value=False)
         self._sample = None
         self._sine_wave = None
         self._sine_wave_sample = None
@@ -190,57 +167,6 @@ class PyBadger:
     def pixels(self):
         """Sequence like object representing the NeoPixels on the board."""
         return self._neopixels
-
-    @property
-    def joystick(self):
-        """The joystick on the PyGamer."""
-        if hasattr(board, "JOYSTICK_X"):
-            x = self._pygamer_joystick_x.value
-            y = self._pygamer_joystick_y.value
-            return x, y
-        raise RuntimeError("This board does not have a built in joystick.")
-
-    @property
-    def button(self):
-        """The buttons on the board.
-
-        Example use:
-
-        .. code-block:: python
-
-        from adafruit_pybadger import PyBadger
-
-        pybadger = PyBadger()
-
-        while True:
-            if pybadger.button.a:
-                print("Button A")
-            elif pybadger.button.b:
-                print("Button B")
-            elif pybadger.button.start:
-                print("Button start")
-            elif pybadger.button.select:
-                print("Button select")
-
-        """
-        #pylint: disable=no-else-return
-        button_values = self._buttons.get_pressed()
-        if hasattr(board, "JOYSTICK_X"):
-            x, y = self.joystick
-            return Buttons(button_values & PyBadger.BUTTON_B,
-                           button_values & PyBadger.BUTTON_A,
-                           button_values & PyBadger.BUTTON_START,
-                           button_values & PyBadger.BUTTON_SELECT,
-                           x > 50000, # RIGHT
-                           y > 50000, # DOWN
-                           y < 15000, # UP
-                           x < 15000  # LEFT
-                          )
-        else:
-            return Buttons(*[button_values & button for button in
-                             (PyBadger.BUTTON_B, PyBadger.BUTTON_A, PyBadger.BUTTON_START,
-                              PyBadger.BUTTON_SELECT, PyBadger.BUTTON_RIGHT,
-                              PyBadger.BUTTON_DOWN, PyBadger.BUTTON_UP, PyBadger.BUTTON_LEFT)])
 
     @property
     def light(self):
@@ -415,7 +341,6 @@ class PyBadger:
         """Generate a QR code and display it for ``dwell`` seconds.
 
         :param string data: A string of data for the QR code
-        :param int dwell: The amount of time in seconds to display the QR code
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
@@ -445,9 +370,14 @@ class PyBadger:
     def _generate_sample(self, length=100):
         if self._sample is not None:
             return
-        self._sine_wave = array.array("H", PyBadger._sine_sample(length))
-        self._sample = audioio.AudioOut(board.SPEAKER)
-        self._sine_wave_sample = audioio.RawSample(self._sine_wave)
+        self._sine_wave = array.array("H", PyBadgerBase._sine_sample(length))
+        self._sample = self._audio_out(board.SPEAKER)  # pylint: disable=not-callable
+        self._sine_wave_sample = audiocore.RawSample(self._sine_wave)
+
+    def _enable_speaker(self, enable):
+        if not hasattr(board, "SPEAKER_ENABLE"):
+            return
+        self._speaker_enable.value = enable
 
     def play_tone(self, frequency, duration):
         """ Produce a tone using the speaker. Try changing frequency to change
@@ -469,7 +399,7 @@ class PyBadger:
         :param int frequency: The frequency of the tone in Hz
 
         """
-        self._speaker_enable.value = True
+        self._enable_speaker(enable=True)
         length = 100
         if length * frequency > 350000:
             length = 350000 // frequency
@@ -481,14 +411,13 @@ class PyBadger:
 
     def stop_tone(self):
         """ Use with start_tone to stop the tone produced.
-
         """
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:
             self._sample.stop()
             self._sample.deinit()
             self._sample = None
-        self._speaker_enable.value = False
+        self._enable_speaker(enable=False)
 
     def play_file(self, file_name):
         """ Play a .wav file using the onboard speaker.
@@ -498,10 +427,10 @@ class PyBadger:
         """
         # Play a specified file.
         self.stop_tone()
-        self._speaker_enable.value = True
-        with audioio.AudioOut(board.SPEAKER) as audio:
-            wavefile = audioio.WaveFile(open(file_name, "rb"))
+        self._enable_speaker(enable=True)
+        with self._audio_out(board.SPEAKER) as audio:  # pylint: disable=not-callable
+            wavefile = audiocore.WaveFile(open(file_name, "rb"))
             audio.play(wavefile)
             while audio.playing:
                 pass
-        self._speaker_enable.value = False
+        self._enable_speaker(enable=True)

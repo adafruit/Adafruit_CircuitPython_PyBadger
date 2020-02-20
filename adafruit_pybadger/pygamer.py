@@ -54,7 +54,7 @@ from adafruit_pybadger.pybadger_base import PyBadgerBase
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
-Buttons = namedtuple("Buttons", "b a start select")
+Buttons = namedtuple("Buttons", "b a start select right down up left")
 
 class PyGamer(PyBadgerBase):
     """Class that represents a single PyGamer."""
@@ -90,9 +90,7 @@ class PyGamer(PyBadgerBase):
 
         .. code-block:: python
 
-          from adafruit_pybadger import PyBadger
-
-          pybadger = PyBadger()
+          from adafruit_pybadger import pybadger
 
           while True:
               if pybadger.button.a:
@@ -110,6 +108,10 @@ class PyGamer(PyBadgerBase):
                        button_values & PyBadgerBase.BUTTON_A,
                        button_values & PyBadgerBase.BUTTON_START,
                        button_values & PyBadgerBase.BUTTON_SELECT,
+                       x > 50000,  # RIGHT
+                       y > 50000,  # DOWN
+                       y < 15000,  # UP
+                       x < 15000  # LEFT
                       )
 
     @property

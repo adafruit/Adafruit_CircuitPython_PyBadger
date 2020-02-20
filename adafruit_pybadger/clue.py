@@ -79,9 +79,7 @@ class Clue(PyBadgerBase):
 
         .. code-block:: python
 
-          from adafruit_pybadger import PyBadger
-
-          pybadger = PyBadger()
+          from adafruit_pybadger import pybadger
 
           while True:
               if pybadger.button.a:

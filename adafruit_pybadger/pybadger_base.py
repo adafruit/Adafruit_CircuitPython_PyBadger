@@ -58,7 +58,7 @@ except ImportError:
 import displayio
 import neopixel
 from adafruit_display_shapes.rect import Rect
-from adafruit_display_text.label import Label
+from adafruit_display_text import label
 from adafruit_bitmap_font import bitmap_font
 import terminalio
 import adafruit_miniqr
@@ -77,12 +77,72 @@ def load_font(fontname, text):
     font.load_glyphs(text.encode('utf-8'))
     return font
 
+class _PyBadgerCustomBadge:
+    """Easily display lines of text on CLUE display."""
+    def __init__(self, background_group):
+        self._label = label
+        self.display = board.DISPLAY
+
+        self.custom_badge_group = displayio.Group(max_size=20)
+
+        self.text_group = displayio.Group(max_size=20)
+
+        self._lines = []
+        for _ in range(1):
+            self._lines.append(self._add_text_line())
+
+        self.custom_badge_group.append(background_group)
+        self.custom_badge_group.append(self.text_group)
+
+    def __getitem__(self, item):
+        """Fetch the Nth text line Group"""
+        if len(self._lines) - 1 < item:
+            for _ in range(item - (len(self._lines) - 1)):
+                self._lines.append(self._add_text_line())
+        return self._lines[item]
+
+    def _add_text_line(self, color=0xFFFFFF):
+        """Adds a line on the display of the specified color and returns the label object."""
+        text_label = self._label.Label(font=terminalio.FONT, text="", max_glyphs=45, color=color)
+        self.text_group.append(text_label)
+        return text_label
+
+    def custom_badge_group():
+        return self.custom_badge_group
+
+    def show(self):
+        """Call show() to display the badge lines."""
+        self.display.show(self.custom_badge_group)
+
 # pylint: disable=too-many-instance-attributes
 class PyBadgerBase:
     """PyBadger base class."""
 
     _audio_out = None
     _neopixel_count = None
+
+    # Color variables available for import.
+    RED = (255, 0, 0)
+    YELLOW = (255, 255, 0)
+    ORANGE = (255, 150, 0)
+    GREEN = (0, 255, 0)
+    TEAL = (0, 255, 120)
+    CYAN = (0, 255, 255)
+    BLUE = (0, 0, 255)
+    PURPLE = (180, 0, 255)
+    MAGENTA = (255, 0, 150)
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+
+    GOLD = (255, 222, 30)
+    PINK = (242, 90, 255)
+    AQUA = (50, 255, 255)
+    JADE = (0, 255, 40)
+    AMBER = (255, 100, 0)
+    VIOLET = (255, 0, 255)
+    SKY = (0, 180, 255)
+
+    RAINBOW = (RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE)
 
     # Button Constants
     BUTTON_LEFT = const(128)
@@ -97,6 +157,11 @@ class PyBadgerBase:
     def __init__(self, *, pixels_brightness=1.0):
         self._light_sensor = None
         self._accelerometer = None
+        self._label = label
+        self.custom_badge_object = None
+        self._y_position = 1
+        self._line_number = 0
+        self._background_group = None
 
         # Display
         self.display = board.DISPLAY
@@ -118,6 +183,70 @@ class PyBadgerBase:
         self._sine_wave = None
         self._sine_wave_sample = None
 
+    def _custom_badge(self):
+        background_group = self._background_group
+        if not background_group:
+            background_group = self._badge_background()
+        return _PyBadgerCustomBadge(background_group)
+
+    def badge_background(self, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
+                         rectangle_drop=0.4, rectangle_height=0.5):
+        self._background_group = self._badge_background(background_color, rectangle_color,
+                                                        rectangle_drop, rectangle_height)
+        return self._background_group
+
+    @classmethod
+    def _badge_background(cls, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
+                         rectangle_drop=0.4, rectangle_height=0.5):
+        """Populate the background color, and rectangle color block over it as the background for
+         a name badge."""
+        background_group = displayio.Group(max_size=2)
+        color_bitmap = displayio.Bitmap(board.DISPLAY.width, board.DISPLAY.height, 1)
+        color_palette = displayio.Palette(1)
+        color_palette[0] = background_color
+
+        bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+        background_group.append(bg_sprite)
+
+        rectangle = Rect(0, (int(board.DISPLAY.height * rectangle_drop)), board.DISPLAY.width,
+                         (int(board.DISPLAY.height * rectangle_height)), fill=rectangle_color)
+        background_group.append(rectangle)
+        return background_group
+
+    def badge_line(self, text=" ", color=(0, 0, 0), scale=1, font=terminalio.FONT,
+                   left_justify=False):
+        if isinstance(font, str):
+            font = load_font(font, text)
+
+        if self.custom_badge_object is None:
+            self.custom_badge_object = self._custom_badge()
+
+        self.custom_badge_object[self._line_number].font = font
+        self.custom_badge_object[self._line_number].scale = scale
+        self.custom_badge_object[self._line_number].text = text
+        self.custom_badge_object[self._line_number].color = color
+
+        _, _, width, height = self.custom_badge_object[self._line_number].bounding_box
+        if not left_justify:
+            self.custom_badge_object[self._line_number].x = (self.display.width // 2) - \
+                                                        ((width * scale) // 2)
+        else:
+            self.custom_badge_object[self._line_number].x = 0
+
+        trim_y = 0
+        if font is terminalio.FONT:
+            trim_y = 4 * scale
+        self.custom_badge_object[self._line_number].y = self._y_position + ((height // 2) *
+                                                                              scale) - trim_y
+        if font is terminalio.FONT:
+            self._y_position += height * scale - trim_y
+        else:
+            self._y_position += height * scale + 4
+        self._line_number += 1
+
+    def show(self):
+        return self.custom_badge_object.show()
+
     # pylint: disable=too-many-arguments
     def _create_label_group(self, text, font,
                             scale, height_adjustment,
@@ -128,7 +257,7 @@ class PyBadgerBase:
             font = load_font(font, text)
 
         group = displayio.Group(scale=scale)
-        label = Label(font, text=text, line_spacing=line_spacing)
+        label = self._label.Label(font, text=text, line_spacing=line_spacing)
         _, _, width, _ = label.bounding_box
         label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
         label.y = int(self.display.height * (height_adjustment / scale))
@@ -277,21 +406,6 @@ class PyBadgerBase:
                             "Blinka".
 
         """
-        splash = displayio.Group(max_size=20)
-
-        color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
-        color_palette = displayio.Palette(1)
-        color_palette[0] = background_color
-
-        bg_sprite = displayio.TileGrid(color_bitmap,
-                                       pixel_shader=color_palette,
-                                       x=0, y=0)
-        splash.append(bg_sprite)
-
-        rect = Rect(0, (int(self.display.height * 0.4)), self.display.width,
-                    (int(self.display.height * 0.5)), fill=foreground_color)
-        splash.append(rect)
-
         hello_group = self._create_label_group(text=hello_string,
                                                font=hello_font,
                                                scale=hello_scale,
@@ -311,11 +425,14 @@ class PyBadgerBase:
                                               color=foreground_text_color)
 
         group = displayio.Group()
-        group.append(splash)
+        group.append(self._badge_background(background_color=background_color,
+                                           rectangle_color=foreground_color))
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
         self.display.show(group)
+
+
 
     def show_terminal(self):
         """Revert to terminalio screen.

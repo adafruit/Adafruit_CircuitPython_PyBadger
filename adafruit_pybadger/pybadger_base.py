@@ -107,9 +107,6 @@ class _PyBadgerCustomBadge:
         self.text_group.append(text_label)
         return text_label
 
-    def custom_badge_group():
-        return self.custom_badge_group
-
     def show(self):
         """Call show() to display the badge lines."""
         self.display.show(self.custom_badge_group)
@@ -197,7 +194,7 @@ class PyBadgerBase:
 
     @classmethod
     def _badge_background(cls, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
-                         rectangle_drop=0.4, rectangle_height=0.5):
+                          rectangle_drop=0.4, rectangle_height=0.5):
         """Populate the background color, and rectangle color block over it as the background for
          a name badge."""
         background_group = displayio.Group(max_size=2)
@@ -213,6 +210,7 @@ class PyBadgerBase:
         background_group.append(rectangle)
         return background_group
 
+    # pylint: disable=too-many-arguments
     def badge_line(self, text=" ", color=(0, 0, 0), scale=1, font=terminalio.FONT,
                    left_justify=False):
         if isinstance(font, str):
@@ -237,7 +235,7 @@ class PyBadgerBase:
         if font is terminalio.FONT:
             trim_y = 4 * scale
         self.custom_badge_object[self._line_number].y = self._y_position + ((height // 2) *
-                                                                              scale) - trim_y
+                                                                            scale) - trim_y
         if font is terminalio.FONT:
             self._y_position += height * scale - trim_y
         else:
@@ -256,14 +254,14 @@ class PyBadgerBase:
         if isinstance(font, str):
             font = load_font(font, text)
 
-        group = displayio.Group(scale=scale)
-        label = self._label.Label(font, text=text, line_spacing=line_spacing)
-        _, _, width, _ = label.bounding_box
-        label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
-        label.y = int(self.display.height * (height_adjustment / scale))
-        label.color = color
-        group.append(label)
-        return group
+        create_label_group = displayio.Group(scale=scale)
+        create_label = self._label.Label(font, text=text, line_spacing=line_spacing)
+        _, _, width, _ = create_label.bounding_box
+        create_label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
+        create_label.y = int(self.display.height * (height_adjustment / scale))
+        create_label.color = color
+        create_label_group.append(create_label)
+        return create_label_group
 
     def _check_for_movement(self, movement_threshold=10):
         """Checks to see if board is moving. Used to auto-dim display when not moving."""
@@ -426,7 +424,7 @@ class PyBadgerBase:
 
         group = displayio.Group()
         group.append(self._badge_background(background_color=background_color,
-                                           rectangle_color=foreground_color))
+                                            rectangle_color=foreground_color))
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)

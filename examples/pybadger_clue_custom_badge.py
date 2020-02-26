@@ -18,4 +18,3 @@ while True:
 
     if pybadger.button.b:
         pybadger.show_qr_code()
-

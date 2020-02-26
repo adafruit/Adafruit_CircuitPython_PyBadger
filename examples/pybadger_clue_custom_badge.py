@@ -1,5 +1,4 @@
-""""""
-
+"""Custom badge example for Adafruit CLUE."""
 from adafruit_pybadger import pybadger
 
 pybadger.badge_background(background_color=pybadger.WHITE, rectangle_color=pybadger.PURPLE,

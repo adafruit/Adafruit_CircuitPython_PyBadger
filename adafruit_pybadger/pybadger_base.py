@@ -76,63 +76,6 @@ def load_font(fontname, text):
     font.load_glyphs(text.encode('utf-8'))
     return font
 
-class _PyBadgerCustomBadge:
-    """Easily display lines of text on the display."""
-    def __init__(self, background_group=None, background_filename=None):
-        self._label = label
-        self.display = board.DISPLAY
-        self._background_filename = background_filename
-        self._background_group = background_group
-
-        self.custom_badge_group = displayio.Group(max_size=20)
-
-        self._lines = []
-        for _ in range(1):
-            self._lines.append(self._add_text_line())
-
-    def __getitem__(self, item):
-        """Fetch the Nth text line Group"""
-        if len(self._lines) - 1 < item:
-            for _ in range(item - (len(self._lines) - 1)):
-                self._lines.append(self._add_text_line())
-        return self._lines[item]
-
-    @staticmethod
-    def _add_image_background(file_handle):
-        on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
-        background_image = displayio.TileGrid(on_disk_bitmap,
-                                              pixel_shader=displayio.ColorConverter())
-        return background_image
-
-    def _add_text_line(self, color=0xFFFFFF):
-        """Adds a line on the display of the specified color and returns the label object."""
-        text_label = self._label.Label(font=terminalio.FONT, text="", max_glyphs=45, color=color)
-        return text_label
-
-    def show(self):
-        """Call show() to display the badge lines."""
-
-        self.display.show(self.custom_badge_group)
-        if self._background_filename:
-            with open(self._background_filename, "rb") as file_handle:
-                background_image = self._add_image_background(file_handle)
-                self.custom_badge_group.append(background_image)
-                for image_label in self._lines:
-                    self.custom_badge_group.append(image_label)
-
-                try:
-                    # Refresh display in CircuitPython 5
-                    self.display.refresh()
-                except AttributeError:
-                    # Refresh display in CircuitPython 4
-                    self.display.wait_for_frame()
-        else:
-            self.custom_badge_group.append(self._background_group)
-            for background_label in self._lines:
-                self.custom_badge_group.append(background_label)
-
-        self.display.show(self.custom_badge_group)
-
 # pylint: disable=too-many-instance-attributes
 class PyBadgerBase:
     """PyBadger base class."""
@@ -182,11 +125,11 @@ class PyBadgerBase:
         self._light_sensor = None
         self._accelerometer = None
         self._label = label
-        self._custom_badge_object = None
         self._y_position = 1
-        self._line_number = 0
         self._background_group = None
-        self._image_filename = None
+        self._background_image_filename = None
+        self._lines = []
+        self._created_background = False
 
         # Display
         self.display = board.DISPLAY
@@ -208,13 +151,32 @@ class PyBadgerBase:
         self._sine_wave = None
         self._sine_wave_sample = None
 
-    def _custom_badge(self):
-        if not self._background_group and not self._image_filename:
-            raise ValueError("You must provide a bitmap image filename.")
-        if not self._background_group:
-            self._background_group = self._badge_background()
-        return _PyBadgerCustomBadge(background_group=self._background_group,
-                                    background_filename=self._image_filename)
+    def _create_badge_background(self):
+        self._created_background = True
+
+        if self._background_group is None:
+            self._background_group = displayio.Group(max_size=30)
+
+        self.display.show(self._background_group)
+
+        if self._background_image_filename:
+            with open(self._background_image_filename, "rb") as file_handle:
+                on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
+                background_image = displayio.TileGrid(on_disk_bitmap,
+                                                      pixel_shader=displayio.ColorConverter())
+                self._background_group.append(background_image)
+                for image_label in self._lines:
+                    self._background_group.append(image_label)
+
+                try:
+                    # Refresh display in CircuitPython 5
+                    self.display.refresh()
+                except AttributeError:
+                    # Refresh display in CircuitPython 4
+                    self.display.wait_for_frame()
+        else:
+            for background_label in self._lines:
+                self._background_group.append(background_label)
 
     def badge_background(self, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
                          rectangle_drop=0.4, rectangle_height=0.5):
@@ -247,7 +209,7 @@ class PyBadgerBase:
                           rectangle_drop=0.4, rectangle_height=0.5):
         """Populate the background color with a rectangle color block over it as the background for
          a name badge."""
-        background_group = displayio.Group(max_size=2)
+        background_group = displayio.Group(max_size=30)
         color_bitmap = displayio.Bitmap(board.DISPLAY.width, board.DISPLAY.height, 1)
         color_palette = displayio.Palette(1)
         color_palette[0] = background_color
@@ -272,7 +234,7 @@ class PyBadgerBase:
 
             pybadger.image_background("Blinka.bmp")
         """
-        self._image_filename = image_name
+        self._background_image_filename = image_name
 
     # pylint: disable=too-many-arguments
     def badge_line(self, text=" ", color=(0, 0, 0), scale=1, font=terminalio.FONT,
@@ -317,20 +279,15 @@ class PyBadgerBase:
         if isinstance(font, str):
             font = load_font(font, text)
 
-        if self._custom_badge_object is None:
-            self._custom_badge_object = self._custom_badge()
+        text_label = self._label.Label(font=font, text=text, max_glyphs=45, color=color,
+                                       scale=scale)
+        self._lines.append(text_label)
 
-        self._custom_badge_object[self._line_number].font = font
-        self._custom_badge_object[self._line_number].scale = scale
-        self._custom_badge_object[self._line_number].text = text
-        self._custom_badge_object[self._line_number].color = color
-
-        _, _, width, height = self._custom_badge_object[self._line_number].bounding_box
+        _, _, width, height = text_label.bounding_box
         if not left_justify:
-            self._custom_badge_object[self._line_number].x = (self.display.width // 2) - \
-                                                        ((width * scale) // 2)
+            text_label.x = (self.display.width // 2) - ((width * scale) // 2)
         else:
-            self._custom_badge_object[self._line_number].x = 0
+            text_label.x = 0
 
         trim_y = 0
         trim_padding = 0
@@ -339,8 +296,7 @@ class PyBadgerBase:
             trim_padding = 4 * padding_above
 
         if not padding_above:
-            self._custom_badge_object[self._line_number].y = self._y_position + ((height // 2) *
-                                                                                 scale) - trim_y
+            text_label.y = self._y_position + ((height // 2) * scale) - trim_y
 
             if font is terminalio.FONT:
                 self._y_position += height * scale - trim_y
@@ -348,10 +304,8 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
         else:
-            self._custom_badge_object[self._line_number].y = self._y_position +\
-                                                            (((height // 2) * scale) - trim_y) +\
-                                                            ((height * padding_above) -
-                                                             trim_padding)
+            text_label.y = self._y_position + (((height // 2) * scale) - trim_y) + \
+                                               ((height * padding_above) - trim_padding)
 
             if font is terminalio.FONT:
                 self._y_position += ((height * scale - trim_y) + ((height * padding_above) -
@@ -359,11 +313,13 @@ class PyBadgerBase:
             else:
                 self._y_position += height * scale + 4
 
-        self._line_number += 1
-
     def show(self):
         """Call ``show()`` to display the badge lines of text."""
-        return self._custom_badge_object.show()
+
+        if not self._created_background:
+            self._create_badge_background()
+
+        self.display.show(self._background_group)
 
     # pylint: disable=too-many-arguments
     def _create_label_group(self, text, font,

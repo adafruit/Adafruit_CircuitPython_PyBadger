@@ -109,8 +109,6 @@ class PyBadgerBase:
     BLINKA_PURPLE = (102, 45, 145)
     BLINKA_PINK = (231, 33, 138)
 
-    RAINBOW = (RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE)
-
     # Button Constants
     BUTTON_LEFT = const(128)
     BUTTON_UP = const(64)
@@ -121,7 +119,7 @@ class PyBadgerBase:
     BUTTON_A = const(2)
     BUTTON_B = const(1)
 
-    def __init__(self, *, pixels_brightness=1.0):
+    def __init__(self):
         self._light_sensor = None
         self._accelerometer = None
         self._label = label
@@ -137,7 +135,7 @@ class PyBadgerBase:
 
         # NeoPixels
         self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, self._neopixel_count,
-                                            brightness=pixels_brightness, pixel_order=neopixel.GRB)
+                                            brightness=1, pixel_order=neopixel.GRB)
 
         # Auto dim display based on movement
         self._last_accelerometer = None
@@ -199,6 +197,9 @@ class PyBadgerBase:
             pybadger.badge_background(background_color=pybadger.WHITE,
                                       rectangle_color=pybadger.PURPLE,
                                       rectangle_drop=0.2, rectangle_height=0.6)
+
+            while True:
+                pybadger.show()
         """
         self._background_group = self._badge_background(background_color, rectangle_color,
                                                         rectangle_drop, rectangle_height)
@@ -233,6 +234,9 @@ class PyBadgerBase:
             from adafruit_pybadger import pybadger
 
             pybadger.image_background("Blinka.bmp")
+
+            while True:
+                pybadger.show()
         """
         self._background_image_filename = image_name
 
@@ -262,19 +266,17 @@ class PyBadgerBase:
                                       rectangle_color=pybadger.PURPLE,
                                       rectangle_drop=0.2, rectangle_height=0.6)
 
-            pybadger.badge_line(text="@blinka", color=pybadger.BLINKA_PURPLE, scale=4,
-                                padding_above=1)
-            pybadger.badge_line(text="Blinka", color=pybadger.WHITE, scale=5,
+            pybadger.badge_line(text="@circuitpython", color=pybadger.BLINKA_PURPLE, scale=2,
                                 padding_above=2)
+            pybadger.badge_line(text="Blinka", color=pybadger.WHITE, scale=5,
+                                padding_above=3)
             pybadger.badge_line(text="CircuitPython", color=pybadger.WHITE, scale=3,
                                 padding_above=1)
             pybadger.badge_line(text="she/her", color=pybadger.BLINKA_PINK, scale=4,
                                 padding_above=4)
 
-            pybadger.show()
-
             while True:
-                pass
+                pybadger.show()
         """
         if isinstance(font, str):
             font = load_font(font, text)
@@ -314,8 +316,7 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
     def show(self):
-        """Call ``show()`` to display the badge lines of text."""
-
+        """Call ``pybadger.show()`` to display the custom badge elements."""
         if not self._created_background:
             self._create_badge_background()
 
@@ -357,6 +358,12 @@ class PyBadgerBase:
         :param int movement_threshold: Threshold required for movement to be considered stopped.
                                        Change to increase or decrease sensitivity.
 
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.auto_dim_display(delay=10)
         """
         if not self._check_for_movement(movement_threshold=movement_threshold):
             current_time = time.monotonic()
@@ -383,7 +390,7 @@ class PyBadgerBase:
 
     @property
     def brightness(self):
-        """Display brightness."""
+        """Display brightness. Must be a value between ``0`` and ``1``."""
         return self.display.brightness
 
     @brightness.setter
@@ -416,6 +423,14 @@ class PyBadgerBase:
         :param int email_scale_two: The scale of ``email_string_two``. Defaults to 1.
         :param email_font_two: The font for the second email string. Defaults to
                                ``terminalio.FONT``.
+
+        .. code-block:: python
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_business_card(image_name="Blinka.bmp", name_string="Blinka",
+                                            name_scale=2, email_string_one="blinka@",
+                                            email_string_two="adafruit.com")
 
         """
         business_card_label_groups = []
@@ -480,6 +495,14 @@ class PyBadgerBase:
         :param name_string: The third string of the badge - change to be your name. Defaults to
                             "Blinka".
 
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2,
+                                    name_scale=3)
+
         """
         hello_group = self._create_label_group(text=hello_string,
                                                font=hello_font,
@@ -528,10 +551,17 @@ class PyBadgerBase:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, *, data="https://circuitpython.org"):
-        """Generate a QR code and display it for ``dwell`` seconds.
+    def show_qr_code(self, data="https://circuitpython.org"):
+        """Generate a QR code.
 
         :param string data: A string of data for the QR code
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_qr_code("https://adafruit.com")
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
@@ -585,7 +615,7 @@ class PyBadgerBase:
 
     def start_tone(self, frequency):
         """ Produce a tone using the speaker. Try changing frequency to change
-        the pitch of the tone.
+        the pitch of the tone. Use ``stop_tone`` to stop the tone.
 
         :param int frequency: The frequency of the tone in Hz
 
@@ -601,7 +631,7 @@ class PyBadgerBase:
             self._sample.play(self._sine_wave_sample, loop=True)
 
     def stop_tone(self):
-        """ Use with start_tone to stop the tone produced.
+        """ Use with ``start_tone`` to stop the tone produced.
         """
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:

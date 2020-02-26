@@ -425,6 +425,7 @@ class PyBadgerBase:
                                ``terminalio.FONT``.
 
         .. code-block:: python
+
             from adafruit_pybadger import pybadger
 
             while True:

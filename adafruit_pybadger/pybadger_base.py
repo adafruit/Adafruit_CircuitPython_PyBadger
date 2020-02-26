@@ -258,6 +258,10 @@ class PyBadgerBase:
                                   is equivalent to the height of two lines of text, etc. Defaults
                                   to ``0``.
 
+        The following example is designed to work on CLUE. To adapt for PyBadge or PyGamer, change
+        the ``scale`` and ``padding_above`` values to fit the text to the display. Examples for
+        CLUE, and PyBadge and PyGamer are included in the examples folder in the library repo.
+
         .. code-block:: python
 
             from adafruit_pybadger import pybadger
@@ -316,7 +320,8 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
     def show(self):
-        """Call ``pybadger.show()`` to display the custom badge elements."""
+        """Call ``pybadger.show()`` to display the custom badge elements. If ``show()`` is not
+        called, the custom badge elements will not be displayed."""
         if not self._created_background:
             self._create_badge_background()
 

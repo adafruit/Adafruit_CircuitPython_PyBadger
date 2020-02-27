@@ -13,7 +13,7 @@ pybadger.show_custom_badge()
 
 while True:
     if pybadger.button.a:
-        pybadger.show_qr_code()
+        pybadger.show_qr_code("https://circuitpython.org")
 
     if pybadger.button.b:
         pybadger.show_custom_badge()

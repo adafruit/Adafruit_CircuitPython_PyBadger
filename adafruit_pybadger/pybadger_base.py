@@ -199,7 +199,7 @@ class PyBadgerBase:
                                       rectangle_drop=0.2, rectangle_height=0.6)
 
             while True:
-                pybadger.show()
+                pybadger.show_custom_badge()
         """
         self._background_group = self._badge_background(background_color, rectangle_color,
                                                         rectangle_drop, rectangle_height)
@@ -236,7 +236,7 @@ class PyBadgerBase:
             pybadger.image_background("Blinka.bmp")
 
             while True:
-                pybadger.show()
+                pybadger.show_custom_badge()
         """
         self._background_image_filename = image_name
 
@@ -280,7 +280,7 @@ class PyBadgerBase:
                                 padding_above=4)
 
             while True:
-                pybadger.show()
+                pybadger.show_custom_badge()
         """
         if isinstance(font, str):
             font = load_font(font, text)
@@ -319,9 +319,10 @@ class PyBadgerBase:
             else:
                 self._y_position += height * scale + 4
 
-    def show(self):
-        """Call ``pybadger.show()`` to display the custom badge elements. If ``show()`` is not
-        called, the custom badge elements will not be displayed."""
+    def show_custom_badge(self):
+        """Call ``pybadger.show_custom_badge()`` to display the custom badge elements. If
+        ``show_custom_badge()`` is not called, the custom badge elements will not be displayed.
+        """
         if not self._created_background:
             self._create_badge_background()
 

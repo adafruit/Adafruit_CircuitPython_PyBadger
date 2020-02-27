@@ -10,4 +10,4 @@ pybadger.badge_line(text="CircuitPythonista", color=pybadger.WHITE, scale=1, pad
 pybadger.badge_line(text="she/her", color=pybadger.BLINKA_PINK, scale=2, padding_above=2)
 
 while True:
-    pybadger.show()
+    pybadger.show_custom_badge()

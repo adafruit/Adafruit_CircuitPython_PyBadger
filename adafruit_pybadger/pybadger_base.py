@@ -25,7 +25,6 @@
 
 Base class for badge-focused CircuitPython helper library.
 
-
 * Author(s): Kattni Rembor
 
 Implementation Notes
@@ -41,7 +40,7 @@ Implementation Notes
 **Software and Dependencies:**
 
 * Adafruit CircuitPython firmware for the supported boards:
-  https://github.com/adafruit/circuitpython/releases
+  https://circuitpython.org/downloads
 
 """
 
@@ -58,7 +57,7 @@ except ImportError:
 import displayio
 import neopixel
 from adafruit_display_shapes.rect import Rect
-from adafruit_display_text.label import Label
+from adafruit_display_text import label
 from adafruit_bitmap_font import bitmap_font
 import terminalio
 import adafruit_miniqr
@@ -84,6 +83,32 @@ class PyBadgerBase:
     _audio_out = None
     _neopixel_count = None
 
+    # Color variables available for import.
+    RED = (255, 0, 0)
+    YELLOW = (255, 255, 0)
+    ORANGE = (255, 150, 0)
+    GREEN = (0, 255, 0)
+    TEAL = (0, 255, 120)
+    CYAN = (0, 255, 255)
+    BLUE = (0, 0, 255)
+    PURPLE = (180, 0, 255)
+    MAGENTA = (255, 0, 150)
+    WHITE = (255, 255, 255)
+    BLACK = (0, 0, 0)
+
+    GOLD = (255, 222, 30)
+    PINK = (242, 90, 255)
+    AQUA = (50, 255, 255)
+    JADE = (0, 255, 40)
+    AMBER = (255, 100, 0)
+    VIOLET = (255, 0, 255)
+    SKY = (0, 180, 255)
+    DEEP_PURPLE = (100, 0, 150)
+    PYTHON_YELLOW = (255, 213, 69)
+    PYTHON_BLUE = (55, 112, 159)
+    BLINKA_PURPLE = (102, 45, 145)
+    BLINKA_PINK = (231, 33, 138)
+
     # Button Constants
     BUTTON_LEFT = const(128)
     BUTTON_UP = const(64)
@@ -94,9 +119,15 @@ class PyBadgerBase:
     BUTTON_A = const(2)
     BUTTON_B = const(1)
 
-    def __init__(self, *, pixels_brightness=1.0):
+    def __init__(self):
         self._light_sensor = None
         self._accelerometer = None
+        self._label = label
+        self._y_position = 1
+        self._background_group = None
+        self._background_image_filename = None
+        self._lines = []
+        self._created_background = False
 
         # Display
         self.display = board.DISPLAY
@@ -104,7 +135,7 @@ class PyBadgerBase:
 
         # NeoPixels
         self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, self._neopixel_count,
-                                            brightness=pixels_brightness, pixel_order=neopixel.GRB)
+                                            brightness=1, pixel_order=neopixel.GRB)
 
         # Auto dim display based on movement
         self._last_accelerometer = None
@@ -118,23 +149,201 @@ class PyBadgerBase:
         self._sine_wave = None
         self._sine_wave_sample = None
 
+    def _create_badge_background(self):
+        self._created_background = True
+
+        if self._background_group is None:
+            self._background_group = displayio.Group(max_size=30)
+
+        self.display.show(self._background_group)
+
+        if self._background_image_filename:
+            with open(self._background_image_filename, "rb") as file_handle:
+                on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
+                background_image = displayio.TileGrid(on_disk_bitmap,
+                                                      pixel_shader=displayio.ColorConverter())
+                self._background_group.append(background_image)
+                for image_label in self._lines:
+                    self._background_group.append(image_label)
+
+                try:
+                    # Refresh display in CircuitPython 5
+                    self.display.refresh()
+                except AttributeError:
+                    # Refresh display in CircuitPython 4
+                    self.display.wait_for_frame()
+        else:
+            for background_label in self._lines:
+                self._background_group.append(background_label)
+
+    def badge_background(self, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
+                         rectangle_drop=0.4, rectangle_height=0.5):
+        """Create a customisable badge background made up of a background color with a rectangle
+        color block over it. Defaults are for ``show_badge``.
+
+        :param tuple background_color: The color to fill the entire screen as a background.
+        :param tuple rectangle_color: The color of a rectangle that displays over the background.
+        :param float rectangle_drop: The distance from the top of the display to begin displaying
+                                     the rectangle. Float represents a percentage of the display,
+                                     e.g. 0.4 = 40% of the display. Defaults to ``0.4``.
+        :param float rectangle_height: The height of the rectangle. Float represents a percentage of
+                                       the display, e.g. 0.5 = 50% of the display. Defaults to
+                                       ``0.5``.
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            pybadger.badge_background(background_color=pybadger.WHITE,
+                                      rectangle_color=pybadger.PURPLE,
+                                      rectangle_drop=0.2, rectangle_height=0.6)
+
+            while True:
+                pybadger.show()
+        """
+        self._background_group = self._badge_background(background_color, rectangle_color,
+                                                        rectangle_drop, rectangle_height)
+        return self._background_group
+
+    @classmethod
+    def _badge_background(cls, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
+                          rectangle_drop=0.4, rectangle_height=0.5):
+        """Populate the background color with a rectangle color block over it as the background for
+         a name badge."""
+        background_group = displayio.Group(max_size=30)
+        color_bitmap = displayio.Bitmap(board.DISPLAY.width, board.DISPLAY.height, 1)
+        color_palette = displayio.Palette(1)
+        color_palette[0] = background_color
+
+        bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+        background_group.append(bg_sprite)
+
+        rectangle = Rect(0, (int(board.DISPLAY.height * rectangle_drop)), board.DISPLAY.width,
+                         (int(board.DISPLAY.height * rectangle_height)), fill=rectangle_color)
+        background_group.append(rectangle)
+        return background_group
+
+    def image_background(self, image_name=None):
+        """Create a bitmap image background.
+
+        :param str image_name: The name of the bitmap image as a string including ``.bmp``, e.g.
+                               ``"Blinka.bmp"``. Image file name is required.
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            pybadger.image_background("Blinka.bmp")
+
+            while True:
+                pybadger.show()
+        """
+        self._background_image_filename = image_name
+
+    # pylint: disable=too-many-arguments
+    def badge_line(self, text=" ", color=(0, 0, 0), scale=1, font=terminalio.FONT,
+                   left_justify=False, padding_above=0):
+        """Add a line of text to the display. Designed to work with ``badge_background`` for a
+        color-block style badge, or with ``image_background`` for a badge with a background image.
+
+        :param str text: The text to display. Defaults to displaying a blank line if no text is
+                         provided.
+        :param tuple color: The color of the line of text. Defaults to ``(0, 0, 0)``.
+        :param int scale: The scale of the text. Must be an integer 1 or higher. Defaults to ``1``.
+        :param font: The font used for displaying the text. Defaults to ``terminalio.FONT``.
+        :param left_justify: Left-justify the line of text. Defaults to ``False`` which centers the
+                             font on the display.
+        :param int padding_above: Add padding above the displayed line of text. A ``padding_above``
+                                  of ``1`` is equivalent to the height of one line of text, ``2``
+                                  is equivalent to the height of two lines of text, etc. Defaults
+                                  to ``0``.
+
+        The following example is designed to work on CLUE. To adapt for PyBadge or PyGamer, change
+        the ``scale`` and ``padding_above`` values to fit the text to the display. Examples for
+        CLUE, and PyBadge and PyGamer are included in the examples folder in the library repo.
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            pybadger.badge_background(background_color=pybadger.WHITE,
+                                      rectangle_color=pybadger.PURPLE,
+                                      rectangle_drop=0.2, rectangle_height=0.6)
+
+            pybadger.badge_line(text="@circuitpython", color=pybadger.BLINKA_PURPLE, scale=2,
+                                padding_above=2)
+            pybadger.badge_line(text="Blinka", color=pybadger.WHITE, scale=5,
+                                padding_above=3)
+            pybadger.badge_line(text="CircuitPython", color=pybadger.WHITE, scale=3,
+                                padding_above=1)
+            pybadger.badge_line(text="she/her", color=pybadger.BLINKA_PINK, scale=4,
+                                padding_above=4)
+
+            while True:
+                pybadger.show()
+        """
+        if isinstance(font, str):
+            font = load_font(font, text)
+
+        text_label = self._label.Label(font=font, text=text, max_glyphs=45, color=color,
+                                       scale=scale)
+        self._lines.append(text_label)
+
+        _, _, width, height = text_label.bounding_box
+        if not left_justify:
+            text_label.x = (self.display.width // 2) - ((width * scale) // 2)
+        else:
+            text_label.x = 0
+
+        trim_y = 0
+        trim_padding = 0
+        if font is terminalio.FONT:
+            trim_y = 4 * scale
+            trim_padding = 4 * padding_above
+
+        if not padding_above:
+            text_label.y = self._y_position + ((height // 2) * scale) - trim_y
+
+            if font is terminalio.FONT:
+                self._y_position += height * scale - trim_y
+            else:
+                self._y_position += height * scale + 4
+
+        else:
+            text_label.y = self._y_position + (((height // 2) * scale) - trim_y) + \
+                                               ((height * padding_above) - trim_padding)
+
+            if font is terminalio.FONT:
+                self._y_position += ((height * scale - trim_y) + ((height * padding_above) -
+                                                                  trim_padding))
+            else:
+                self._y_position += height * scale + 4
+
+    def show(self):
+        """Call ``pybadger.show()`` to display the custom badge elements. If ``show()`` is not
+        called, the custom badge elements will not be displayed."""
+        if not self._created_background:
+            self._create_badge_background()
+
+        self.display.show(self._background_group)
+
     # pylint: disable=too-many-arguments
     def _create_label_group(self, text, font,
                             scale, height_adjustment,
                             color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
-        """Create a label group with the given text, font, and spacing"""
+        """Create a label group with the given text, font, and spacing."""
         # If the given font is a string, treat it as a file path and try to load it
         if isinstance(font, str):
             font = load_font(font, text)
 
-        group = displayio.Group(scale=scale)
-        label = Label(font, text=text, line_spacing=line_spacing)
-        _, _, width, _ = label.bounding_box
-        label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
-        label.y = int(self.display.height * (height_adjustment / scale))
-        label.color = color
-        group.append(label)
-        return group
+        create_label_group = displayio.Group(scale=scale)
+        create_label = self._label.Label(font, text=text, line_spacing=line_spacing)
+        _, _, width, _ = create_label.bounding_box
+        create_label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
+        create_label.y = int(self.display.height * (height_adjustment / scale))
+        create_label.color = color
+        create_label_group.append(create_label)
+        return create_label_group
 
     def _check_for_movement(self, movement_threshold=10):
         """Checks to see if board is moving. Used to auto-dim display when not moving."""
@@ -154,6 +363,12 @@ class PyBadgerBase:
         :param int movement_threshold: Threshold required for movement to be considered stopped.
                                        Change to increase or decrease sensitivity.
 
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.auto_dim_display(delay=10)
         """
         if not self._check_for_movement(movement_threshold=movement_threshold):
             current_time = time.monotonic()
@@ -180,7 +395,7 @@ class PyBadgerBase:
 
     @property
     def brightness(self):
-        """Display brightness."""
+        """Display brightness. Must be a value between ``0`` and ``1``."""
         return self.display.brightness
 
     @brightness.setter
@@ -213,6 +428,15 @@ class PyBadgerBase:
         :param int email_scale_two: The scale of ``email_string_two``. Defaults to 1.
         :param email_font_two: The font for the second email string. Defaults to
                                ``terminalio.FONT``.
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_business_card(image_name="Blinka.bmp", name_string="Blinka",
+                                            name_scale=2, email_string_one="blinka@",
+                                            email_string_two="adafruit.com")
 
         """
         business_card_label_groups = []
@@ -251,19 +475,20 @@ class PyBadgerBase:
                 self.display.wait_for_frame()
 
     # pylint: disable=too-many-locals
-    def show_badge(self, *, background_color=0xFF0000, foreground_color=0xFFFFFF,
-                   background_text_color=0xFFFFFF, foreground_text_color=0x000000,
+    def show_badge(self, *, background_color=(255, 0, 0), foreground_color=(255, 255, 255),
+                   background_text_color=(255, 255, 255), foreground_text_color=(0, 0, 0),
                    hello_font=terminalio.FONT, hello_scale=1, hello_string="HELLO",
                    my_name_is_font=terminalio.FONT, my_name_is_scale=1,
                    my_name_is_string="MY NAME IS", name_font=terminalio.FONT, name_scale=1,
                    name_string="Blinka"):
         """Create a "Hello My Name is"-style badge.
 
-        :param background_color: The color of the background. Defaults to 0xFF0000.
-        :param foreground_color: The color of the foreground rectangle. Defaults to 0xFFFFFF.
+        :param background_color: The color of the background. Defaults to ``(255, 0, 0)``.
+        :param foreground_color: The color of the foreground rectangle. Defaults to
+                                 ``(255, 255, 255)``.
         :param background_text_color: The color of the "HELLO MY NAME IS" text. Defaults to
-                                      0xFFFFFF.
-        :param foreground_text_color: The color of the name text. Defaults to 0x000000.
+                                      ``(255, 255, 255)``.
+        :param foreground_text_color: The color of the name text. Defaults to ``(0, 0, 0)``.
         :param hello_font: The font for the "HELLO" string. Defaults to ``terminalio.FONT``.
         :param hello_scale: The size scale of the "HELLO" string. Defaults to 1.
         :param hello_string: The first string of the badge. Defaults to "HELLO".
@@ -276,22 +501,15 @@ class PyBadgerBase:
         :param name_string: The third string of the badge - change to be your name. Defaults to
                             "Blinka".
 
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2,
+                                    name_scale=3)
+
         """
-        splash = displayio.Group(max_size=20)
-
-        color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
-        color_palette = displayio.Palette(1)
-        color_palette[0] = background_color
-
-        bg_sprite = displayio.TileGrid(color_bitmap,
-                                       pixel_shader=color_palette,
-                                       x=0, y=0)
-        splash.append(bg_sprite)
-
-        rect = Rect(0, (int(self.display.height * 0.4)), self.display.width,
-                    (int(self.display.height * 0.5)), fill=foreground_color)
-        splash.append(rect)
-
         hello_group = self._create_label_group(text=hello_string,
                                                font=hello_font,
                                                scale=hello_scale,
@@ -311,15 +529,17 @@ class PyBadgerBase:
                                               color=foreground_text_color)
 
         group = displayio.Group()
-        group.append(splash)
+        group.append(self._badge_background(background_color=background_color,
+                                            rectangle_color=foreground_color))
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
         self.display.show(group)
 
+
+
     def show_terminal(self):
         """Revert to terminalio screen.
-
         """
         self.display.show(None)
 
@@ -337,10 +557,17 @@ class PyBadgerBase:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, *, data="https://circuitpython.org"):
-        """Generate a QR code and display it for ``dwell`` seconds.
+    def show_qr_code(self, data="https://circuitpython.org"):
+        """Generate a QR code.
 
         :param string data: A string of data for the QR code
+
+        .. code-block:: python
+
+            from adafruit_pybadger import pybadger
+
+            while True:
+                pybadger.show_qr_code("https://adafruit.com")
 
         """
         qr_code = adafruit_miniqr.QRCode(qr_type=3, error_correct=adafruit_miniqr.L)
@@ -394,7 +621,7 @@ class PyBadgerBase:
 
     def start_tone(self, frequency):
         """ Produce a tone using the speaker. Try changing frequency to change
-        the pitch of the tone.
+        the pitch of the tone. Use ``stop_tone`` to stop the tone.
 
         :param int frequency: The frequency of the tone in Hz
 
@@ -410,7 +637,7 @@ class PyBadgerBase:
             self._sample.play(self._sine_wave_sample, loop=True)
 
     def stop_tone(self):
-        """ Use with start_tone to stop the tone produced.
+        """ Use with ``start_tone`` to stop the tone produced.
         """
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:

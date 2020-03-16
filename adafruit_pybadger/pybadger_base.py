@@ -50,6 +50,7 @@ import math
 import board
 from micropython import const
 import digitalio
+
 try:
     import audiocore
 except ImportError:
@@ -65,6 +66,7 @@ import adafruit_miniqr
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
+
 def load_font(fontname, text):
     """Load a font and glyphs in the text string
 
@@ -73,8 +75,9 @@ def load_font(fontname, text):
 
     """
     font = bitmap_font.load_font(fontname)
-    font.load_glyphs(text.encode('utf-8'))
+    font.load_glyphs(text.encode("utf-8"))
     return font
+
 
 # pylint: disable=too-many-instance-attributes
 class PyBadgerBase:
@@ -134,8 +137,9 @@ class PyBadgerBase:
         self._display_brightness = 1.0
 
         # NeoPixels
-        self._neopixels = neopixel.NeoPixel(board.NEOPIXEL, self._neopixel_count,
-                                            brightness=1, pixel_order=neopixel.GRB)
+        self._neopixels = neopixel.NeoPixel(
+            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
+        )
 
         # Auto dim display based on movement
         self._last_accelerometer = None
@@ -160,8 +164,9 @@ class PyBadgerBase:
         if self._background_image_filename:
             with open(self._background_image_filename, "rb") as file_handle:
                 on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
-                background_image = displayio.TileGrid(on_disk_bitmap,
-                                                      pixel_shader=displayio.ColorConverter())
+                background_image = displayio.TileGrid(
+                    on_disk_bitmap, pixel_shader=displayio.ColorConverter()
+                )
                 self._background_group.append(background_image)
                 for image_label in self._lines:
                     self._background_group.append(image_label)
@@ -176,8 +181,13 @@ class PyBadgerBase:
             for background_label in self._lines:
                 self._background_group.append(background_label)
 
-    def badge_background(self, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
-                         rectangle_drop=0.4, rectangle_height=0.5):
+    def badge_background(
+        self,
+        background_color=(255, 0, 0),
+        rectangle_color=(255, 255, 255),
+        rectangle_drop=0.4,
+        rectangle_height=0.5,
+    ):
         """Create a customisable badge background made up of a background color with a rectangle
         color block over it. Defaults are for ``show_badge``.
 
@@ -201,13 +211,19 @@ class PyBadgerBase:
             while True:
                 pybadger.show_custom_badge()
         """
-        self._background_group = self._badge_background(background_color, rectangle_color,
-                                                        rectangle_drop, rectangle_height)
+        self._background_group = self._badge_background(
+            background_color, rectangle_color, rectangle_drop, rectangle_height
+        )
         return self._background_group
 
     @classmethod
-    def _badge_background(cls, background_color=(255, 0, 0), rectangle_color=(255, 255, 255),
-                          rectangle_drop=0.4, rectangle_height=0.5):
+    def _badge_background(
+        cls,
+        background_color=(255, 0, 0),
+        rectangle_color=(255, 255, 255),
+        rectangle_drop=0.4,
+        rectangle_height=0.5,
+    ):
         """Populate the background color with a rectangle color block over it as the background for
          a name badge."""
         background_group = displayio.Group(max_size=30)
@@ -215,11 +231,18 @@ class PyBadgerBase:
         color_palette = displayio.Palette(1)
         color_palette[0] = background_color
 
-        bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
+        bg_sprite = displayio.TileGrid(
+            color_bitmap, pixel_shader=color_palette, x=0, y=0
+        )
         background_group.append(bg_sprite)
 
-        rectangle = Rect(0, (int(board.DISPLAY.height * rectangle_drop)), board.DISPLAY.width,
-                         (int(board.DISPLAY.height * rectangle_height)), fill=rectangle_color)
+        rectangle = Rect(
+            0,
+            (int(board.DISPLAY.height * rectangle_drop)),
+            board.DISPLAY.width,
+            (int(board.DISPLAY.height * rectangle_height)),
+            fill=rectangle_color,
+        )
         background_group.append(rectangle)
         return background_group
 
@@ -241,8 +264,15 @@ class PyBadgerBase:
         self._background_image_filename = image_name
 
     # pylint: disable=too-many-arguments
-    def badge_line(self, text=" ", color=(0, 0, 0), scale=1, font=terminalio.FONT,
-                   left_justify=False, padding_above=0):
+    def badge_line(
+        self,
+        text=" ",
+        color=(0, 0, 0),
+        scale=1,
+        font=terminalio.FONT,
+        left_justify=False,
+        padding_above=0,
+    ):
         """Add a line of text to the display. Designed to work with ``badge_background`` for a
         color-block style badge, or with ``image_background`` for a badge with a background image.
 
@@ -285,8 +315,9 @@ class PyBadgerBase:
         if isinstance(font, str):
             font = load_font(font, text)
 
-        text_label = self._label.Label(font=font, text=text, max_glyphs=45, color=color,
-                                       scale=scale)
+        text_label = self._label.Label(
+            font=font, text=text, max_glyphs=45, color=color, scale=scale
+        )
         self._lines.append(text_label)
 
         _, _, width, height = text_label.bounding_box
@@ -310,12 +341,16 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
         else:
-            text_label.y = self._y_position + (((height // 2) * scale) - trim_y) + \
-                                               ((height * padding_above) - trim_padding)
+            text_label.y = (
+                self._y_position
+                + (((height // 2) * scale) - trim_y)
+                + ((height * padding_above) - trim_padding)
+            )
 
             if font is terminalio.FONT:
-                self._y_position += ((height * scale - trim_y) + ((height * padding_above) -
-                                                                  trim_padding))
+                self._y_position += (height * scale - trim_y) + (
+                    (height * padding_above) - trim_padding
+                )
             else:
                 self._y_position += height * scale + 4
 
@@ -329,9 +364,16 @@ class PyBadgerBase:
         self.display.show(self._background_group)
 
     # pylint: disable=too-many-arguments
-    def _create_label_group(self, text, font,
-                            scale, height_adjustment,
-                            color=0xFFFFFF, width_adjustment=2, line_spacing=0.75):
+    def _create_label_group(
+        self,
+        text,
+        font,
+        scale,
+        height_adjustment,
+        color=0xFFFFFF,
+        width_adjustment=2,
+        line_spacing=0.75,
+    ):
         """Create a label group with the given text, font, and spacing."""
         # If the given font is a string, treat it as a file path and try to load it
         if isinstance(font, str):
@@ -340,7 +382,7 @@ class PyBadgerBase:
         create_label_group = displayio.Group(scale=scale)
         create_label = self._label.Label(font, text=text, line_spacing=line_spacing)
         _, _, width, _ = create_label.bounding_box
-        create_label.x = ((self.display.width // (width_adjustment * scale)) - width // 2)
+        create_label.x = (self.display.width // (width_adjustment * scale)) - width // 2
         create_label.y = int(self.display.height * (height_adjustment / scale))
         create_label.color = color
         create_label_group.append(create_label)
@@ -352,8 +394,12 @@ class PyBadgerBase:
         if self._last_accelerometer is None:
             self._last_accelerometer = current_accelerometer
             return False
-        acceleration_delta = sum([abs(self._last_accelerometer[n] - current_accelerometer[n]) for n
-                                  in range(3)])
+        acceleration_delta = sum(
+            [
+                abs(self._last_accelerometer[n] - current_accelerometer[n])
+                for n in range(3)
+            ]
+        )
         self._last_accelerometer = current_accelerometer
         return acceleration_delta > movement_threshold
 
@@ -392,7 +438,11 @@ class PyBadgerBase:
     @property
     def acceleration(self):
         """Accelerometer data, +/- 2G sensitivity."""
-        return self._accelerometer.acceleration if self._accelerometer is not None else None
+        return (
+            self._accelerometer.acceleration
+            if self._accelerometer is not None
+            else None
+        )
 
     @property
     def brightness(self):
@@ -405,11 +455,20 @@ class PyBadgerBase:
         self.display.brightness = value
 
     # pylint: disable=too-many-locals
-    def show_business_card(self, *, image_name=None, name_string=None, name_scale=1,
-                           name_font=terminalio.FONT, email_string_one=None,
-                           email_scale_one=1, email_font_one=terminalio.FONT,
-                           email_string_two=None, email_scale_two=1,
-                           email_font_two=terminalio.FONT):
+    def show_business_card(
+        self,
+        *,
+        image_name=None,
+        name_string=None,
+        name_scale=1,
+        name_font=terminalio.FONT,
+        email_string_one=None,
+        email_scale_one=1,
+        email_font_one=terminalio.FONT,
+        email_string_two=None,
+        email_scale_two=1,
+        email_font_two=terminalio.FONT
+    ):
         """Display a bitmap image and a text string, such as a personal image and email address.
 
         :param str image_name: REQUIRED. The name of the bitmap image including .bmp, e.g.
@@ -442,29 +501,37 @@ class PyBadgerBase:
         """
         business_card_label_groups = []
         if name_string:
-            name_group = self._create_label_group(text=name_string,
-                                                  font=name_font,
-                                                  scale=name_scale,
-                                                  height_adjustment=0.73)
+            name_group = self._create_label_group(
+                text=name_string,
+                font=name_font,
+                scale=name_scale,
+                height_adjustment=0.73,
+            )
             business_card_label_groups.append(name_group)
         if email_string_one:
-            email_one_group = self._create_label_group(text=email_string_one,
-                                                       font=email_font_one,
-                                                       scale=email_scale_one,
-                                                       height_adjustment=0.84)
+            email_one_group = self._create_label_group(
+                text=email_string_one,
+                font=email_font_one,
+                scale=email_scale_one,
+                height_adjustment=0.84,
+            )
             business_card_label_groups.append(email_one_group)
         if email_string_two:
-            email_two_group = self._create_label_group(text=email_string_two,
-                                                       font=email_font_two,
-                                                       scale=email_scale_two,
-                                                       height_adjustment=0.91)
+            email_two_group = self._create_label_group(
+                text=email_string_two,
+                font=email_font_two,
+                scale=email_scale_two,
+                height_adjustment=0.91,
+            )
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group(max_size=4)
         self.display.show(business_card_splash)
         with open(image_name, "rb") as file_name:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)
-            face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=displayio.ColorConverter())
+            face_image = displayio.TileGrid(
+                on_disk_bitmap, pixel_shader=displayio.ColorConverter()
+            )
             business_card_splash.append(face_image)
             for group in business_card_label_groups:
                 business_card_splash.append(group)
@@ -476,12 +543,23 @@ class PyBadgerBase:
                 self.display.wait_for_frame()
 
     # pylint: disable=too-many-locals
-    def show_badge(self, *, background_color=(255, 0, 0), foreground_color=(255, 255, 255),
-                   background_text_color=(255, 255, 255), foreground_text_color=(0, 0, 0),
-                   hello_font=terminalio.FONT, hello_scale=1, hello_string="HELLO",
-                   my_name_is_font=terminalio.FONT, my_name_is_scale=1,
-                   my_name_is_string="MY NAME IS", name_font=terminalio.FONT, name_scale=1,
-                   name_string="Blinka"):
+    def show_badge(
+        self,
+        *,
+        background_color=(255, 0, 0),
+        foreground_color=(255, 255, 255),
+        background_text_color=(255, 255, 255),
+        foreground_text_color=(0, 0, 0),
+        hello_font=terminalio.FONT,
+        hello_scale=1,
+        hello_string="HELLO",
+        my_name_is_font=terminalio.FONT,
+        my_name_is_scale=1,
+        my_name_is_string="MY NAME IS",
+        name_font=terminalio.FONT,
+        name_scale=1,
+        name_string="Blinka"
+    ):
         """Create a "Hello My Name is"-style badge.
 
         :param background_color: The color of the background. Defaults to ``(255, 0, 0)``.
@@ -511,33 +589,40 @@ class PyBadgerBase:
                                     name_scale=3)
 
         """
-        hello_group = self._create_label_group(text=hello_string,
-                                               font=hello_font,
-                                               scale=hello_scale,
-                                               height_adjustment=0.117,
-                                               color=background_text_color)
+        hello_group = self._create_label_group(
+            text=hello_string,
+            font=hello_font,
+            scale=hello_scale,
+            height_adjustment=0.117,
+            color=background_text_color,
+        )
 
-        my_name_is_group = self._create_label_group(text=my_name_is_string,
-                                                    font=my_name_is_font,
-                                                    scale=my_name_is_scale,
-                                                    height_adjustment=0.28,
-                                                    color=background_text_color)
+        my_name_is_group = self._create_label_group(
+            text=my_name_is_string,
+            font=my_name_is_font,
+            scale=my_name_is_scale,
+            height_adjustment=0.28,
+            color=background_text_color,
+        )
 
-        name_group = self._create_label_group(text=name_string,
-                                              font=name_font,
-                                              scale=name_scale,
-                                              height_adjustment=0.65,
-                                              color=foreground_text_color)
+        name_group = self._create_label_group(
+            text=name_string,
+            font=name_font,
+            scale=name_scale,
+            height_adjustment=0.65,
+            color=foreground_text_color,
+        )
 
         group = displayio.Group()
-        group.append(self._badge_background(background_color=background_color,
-                                            rectangle_color=foreground_color))
+        group.append(
+            self._badge_background(
+                background_color=background_color, rectangle_color=foreground_color
+            )
+        )
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
         self.display.show(group)
-
-
 
     def show_terminal(self):
         """Revert to terminalio screen.
@@ -548,8 +633,9 @@ class PyBadgerBase:
     def bitmap_qr(matrix):
         """The QR code bitmap."""
         border_pixels = 2
-        bitmap = displayio.Bitmap(matrix.width + 2 * border_pixels,
-                                  matrix.height + 2 * border_pixels, 2)
+        bitmap = displayio.Bitmap(
+            matrix.width + 2 * border_pixels, matrix.height + 2 * border_pixels, 2
+        )
         for y in range(matrix.height):
             for x in range(matrix.width):
                 if matrix[x, y]:
@@ -578,12 +664,19 @@ class PyBadgerBase:
         palette = displayio.Palette(2)
         palette[0] = 0xFFFFFF
         palette[1] = 0x000000
-        qr_code_scale = min(self.display.width // qr_bitmap.width,
-                            self.display.height // qr_bitmap.height)
-        qr_position_x = int(((self.display.width / qr_code_scale) - qr_bitmap.width) / 2)
-        qr_position_y = int(((self.display.height / qr_code_scale) - qr_bitmap.height) / 2)
-        qr_img = displayio.TileGrid(qr_bitmap, pixel_shader=palette, x=qr_position_x,
-                                    y=qr_position_y)
+        qr_code_scale = min(
+            self.display.width // qr_bitmap.width,
+            self.display.height // qr_bitmap.height,
+        )
+        qr_position_x = int(
+            ((self.display.width / qr_code_scale) - qr_bitmap.width) / 2
+        )
+        qr_position_y = int(
+            ((self.display.height / qr_code_scale) - qr_bitmap.height) / 2
+        )
+        qr_img = displayio.TileGrid(
+            qr_bitmap, pixel_shader=palette, x=qr_position_x, y=qr_position_y
+        )
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
         self.display.show(qr_code)
@@ -593,7 +686,7 @@ class PyBadgerBase:
         tone_volume = (2 ** 15) - 1
         shift = 2 ** 15
         for i in range(length):
-            yield int(tone_volume * math.sin(2*math.pi*(i / length)) + shift)
+            yield int(tone_volume * math.sin(2 * math.pi * (i / length)) + shift)
 
     def _generate_sample(self, length=100):
         if self._sample is not None:

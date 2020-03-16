@@ -61,6 +61,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 Buttons = namedtuple("Buttons", "b a start select right down up left")
 
+
 class PyBadge(PyBadgerBase):
     """Class that represents a single PyBadge, PyBadge LC, or EdgeBadge."""
 
@@ -81,13 +82,17 @@ class PyBadge(PyBadgerBase):
         if i2c is not None:
             int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
             try:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
+                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
+                    i2c, address=0x19, int1=int1
+                )
             except ValueError:
                 self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
-        self._buttons = GamePadShift(digitalio.DigitalInOut(board.BUTTON_CLOCK),
-                                     digitalio.DigitalInOut(board.BUTTON_OUT),
-                                     digitalio.DigitalInOut(board.BUTTON_LATCH))
+        self._buttons = GamePadShift(
+            digitalio.DigitalInOut(board.BUTTON_CLOCK),
+            digitalio.DigitalInOut(board.BUTTON_OUT),
+            digitalio.DigitalInOut(board.BUTTON_LATCH),
+        )
 
         self._light_sensor = analogio.AnalogIn(board.A7)
 
@@ -113,11 +118,22 @@ class PyBadge(PyBadgerBase):
 
         """
         button_values = self._buttons.get_pressed()
-        return Buttons(*[button_values & button for button in
-                         (PyBadgerBase.BUTTON_B, PyBadgerBase.BUTTON_A,
-                          PyBadgerBase.BUTTON_START, PyBadgerBase.BUTTON_SELECT,
-                          PyBadgerBase.BUTTON_RIGHT, PyBadgerBase.BUTTON_DOWN,
-                          PyBadgerBase.BUTTON_UP, PyBadgerBase.BUTTON_LEFT)])
+        return Buttons(
+            *[
+                button_values & button
+                for button in (
+                    PyBadgerBase.BUTTON_B,
+                    PyBadgerBase.BUTTON_A,
+                    PyBadgerBase.BUTTON_START,
+                    PyBadgerBase.BUTTON_SELECT,
+                    PyBadgerBase.BUTTON_RIGHT,
+                    PyBadgerBase.BUTTON_DOWN,
+                    PyBadgerBase.BUTTON_UP,
+                    PyBadgerBase.BUTTON_LEFT,
+                )
+            ]
+        )
+
 
 pybadge = PyBadge()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

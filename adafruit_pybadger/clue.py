@@ -55,8 +55,10 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 Buttons = namedtuple("Buttons", "a b")
 
+
 class Clue(PyBadgerBase):
     """Class that represents a single CLUE."""
+
     _audio_out = audiopwmio.PWMAudioOut
     _neopixel_count = 1
 
@@ -68,8 +70,10 @@ class Clue(PyBadgerBase):
         if i2c is not None:
             self._accelerometer = adafruit_lsm6ds.LSM6DS33(i2c)
 
-        self._buttons = GamePad(digitalio.DigitalInOut(board.BUTTON_A),
-                                digitalio.DigitalInOut(board.BUTTON_B))
+        self._buttons = GamePad(
+            digitalio.DigitalInOut(board.BUTTON_A),
+            digitalio.DigitalInOut(board.BUTTON_B),
+        )
 
     @property
     def button(self):
@@ -88,9 +92,9 @@ class Clue(PyBadgerBase):
                   print("Button B")
         """
         button_values = self._buttons.get_pressed()
-        return Buttons(button_values & PyBadgerBase.BUTTON_B,
-                       button_values & PyBadgerBase.BUTTON_A)
-
+        return Buttons(
+            button_values & PyBadgerBase.BUTTON_B, button_values & PyBadgerBase.BUTTON_A
+        )
 
     @property
     def _unsupported(self):
@@ -102,6 +106,7 @@ class Clue(PyBadgerBase):
     # NotImplementedError raised in the property above.
     play_file = _unsupported
     light = _unsupported
+
 
 clue = Clue()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

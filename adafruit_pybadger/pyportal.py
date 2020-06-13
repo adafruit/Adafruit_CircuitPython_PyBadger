@@ -42,6 +42,8 @@ Implementation Notes
 
 """
 
+import board
+import analogio
 import audioio
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
@@ -55,6 +57,11 @@ class PyPortal(PyBadgerBase):
     _audio_out = audioio.AudioOut
     _neopixel_count = 1
 
+    def __init__(self):
+        super().__init__()
+
+        self._light_sensor = analogio.AnalogIn(board.LIGHT)
+
     @property
     def _unsupported(self):
         """This feature is not supported on PyPortal."""
@@ -63,8 +70,6 @@ class PyPortal(PyBadgerBase):
     # The following is a list of the features available in other PyBadger modules but
     # not available for PyPortal. If called while using a PyPortal, they will result in the
     # NotImplementedError raised in the property above.
-    play_file = _unsupported
-    light = _unsupported
     button = _unsupported
 
 

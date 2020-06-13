@@ -71,6 +71,8 @@ class PyPortal(PyBadgerBase):
     # not available for PyPortal. If called while using a PyPortal, they will result in the
     # NotImplementedError raised in the property above.
     button = _unsupported
+    acceleration = _unsupported
+    auto_dim_display = _unsupported
 
 
 pyportal = PyPortal()  # pylint: disable=invalid-name

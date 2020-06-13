@@ -33,7 +33,7 @@ while True:
 
     if cur_example == 0:
         pybadger.show_business_card(
-            image_name="Blinka.bmp",
+            image_name="Blinka_PyPortal.bmp",
             name_string="Blinka",
             name_scale=2,
             email_string_one="blinka@",

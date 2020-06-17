@@ -42,6 +42,7 @@ Implementation Notes
 
 """
 import board
+import analogio
 import audioio
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase

@@ -1,4 +1,4 @@
-"""Simpletest examaple using Adafruit PyPortal. Uses the touchscreen to advance between examples."""
+"""Simpletest example using Adafruit PyPortal. Uses the touchscreen to advance between examples."""
 import board
 from adafruit_pybadger import pybadger
 import adafruit_touchscreen

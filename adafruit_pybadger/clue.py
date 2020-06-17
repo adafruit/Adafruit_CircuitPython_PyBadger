@@ -48,6 +48,7 @@ import digitalio
 import audiopwmio
 from gamepad import GamePad
 import adafruit_lsm6ds
+import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0-auto.0"
@@ -69,6 +70,11 @@ class Clue(PyBadgerBase):
 
         if i2c is not None:
             self._accelerometer = adafruit_lsm6ds.LSM6DS33(i2c)
+
+        # NeoPixels
+        self._neopixels = neopixel.NeoPixel(
+            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
+        )
 
         self._buttons = GamePad(
             digitalio.DigitalInOut(board.BUTTON_A),

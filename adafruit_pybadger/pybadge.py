@@ -54,6 +54,7 @@ import analogio
 import audioio
 from gamepadshift import GamePadShift
 import adafruit_lis3dh
+import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0-auto.0"
@@ -87,6 +88,11 @@ class PyBadge(PyBadgerBase):
                 )
             except ValueError:
                 self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+
+        # NeoPixels
+        self._neopixels = neopixel.NeoPixel(
+            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
+        )
 
         self._buttons = GamePadShift(
             digitalio.DigitalInOut(board.BUTTON_CLOCK),

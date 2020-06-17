@@ -41,8 +41,9 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
-
+import board
 import audioio
+import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0-auto.0"
@@ -54,6 +55,14 @@ class PyPortal(PyBadgerBase):
 
     _audio_out = audioio.AudioOut
     _neopixel_count = 1
+
+    def __init__(self):
+        super().__init__()
+
+        # NeoPixels
+        self._neopixels = neopixel.NeoPixel(
+            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
+        )
 
     @property
     def _unsupported(self):

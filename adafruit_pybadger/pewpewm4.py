@@ -20,13 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_pybadger.pybadge`
+`adafruit_pybadger.clue`
 ================================================================================
 
-Badge-focused CircuitPython helper library for PyBadge, PyBadge LC and EdgeBadge.
-All three boards are included in this module as there is no difference in the
-CircuitPython builds at this time, and therefore no way to differentiate
-the boards from within CircuitPython.
+Badge-focused CircuitPython helper library for Pew Pew M4.
 
 
 * Author(s): Kattni Rembor
@@ -36,9 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
-* `Adafruit PyBadge <https://www.adafruit.com/product/4200>`_
-* `Adafruit PyBadge LC <https://www.adafruit.com/product/3939>`_
-* `Adafruit EdgeBadge <https://www.adafruit.com/product/4400>`_
+* `Pew Pew M4 <https://hackaday.io/project/165032-pewpew-m4>`_
 
 **Software and Dependencies:**
 
@@ -50,57 +45,34 @@ Implementation Notes
 from collections import namedtuple
 import board
 import digitalio
-import analogio
 import audioio
-from gamepadshift import GamePadShift
-import adafruit_lis3dh
-import neopixel
+from gamepad import GamePad
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
-Buttons = namedtuple("Buttons", "b a start select right down up left")
+Buttons = namedtuple("Buttons", ("o", "x", "z", "right", "down", "up", "left"))
 
 
-class PyBadge(PyBadgerBase):
-    """Class that represents a single PyBadge, PyBadge LC, or EdgeBadge."""
+class PewPewM4(PyBadgerBase):
+    """Class that represents a single Pew Pew M4."""
 
     _audio_out = audioio.AudioOut
-    _neopixel_count = 5
+    _neopixel_count = 0
 
     def __init__(self):
         super().__init__()
 
-        i2c = None
-
-        if i2c is None:
-            try:
-                i2c = board.I2C()
-            except RuntimeError:
-                self._accelerometer = None
-
-        if i2c is not None:
-            int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-            try:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
-                    i2c, address=0x19, int1=int1
-                )
-            except ValueError:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
-
-        # NeoPixels
-        self._neopixels = neopixel.NeoPixel(
-            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
+        self._buttons = GamePad(
+            digitalio.DigitalInOut(board.BUTTON_O),
+            digitalio.DigitalInOut(board.BUTTON_X),
+            digitalio.DigitalInOut(board.BUTTON_Z),
+            digitalio.DigitalInOut(board.BUTTON_RIGHT),
+            digitalio.DigitalInOut(board.BUTTON_DOWN),
+            digitalio.DigitalInOut(board.BUTTON_UP),
+            digitalio.DigitalInOut(board.BUTTON_LEFT),
         )
-
-        self._buttons = GamePadShift(
-            digitalio.DigitalInOut(board.BUTTON_CLOCK),
-            digitalio.DigitalInOut(board.BUTTON_OUT),
-            digitalio.DigitalInOut(board.BUTTON_LATCH),
-        )
-
-        self._light_sensor = analogio.AnalogIn(board.A7)
 
     @property
     def button(self):
@@ -113,15 +85,10 @@ class PyBadge(PyBadgerBase):
           from adafruit_pybadger import pybadger
 
           while True:
-              if pybadger.button.a:
-                  print("Button A")
-              elif pybadger.button.b:
-                  print("Button B")
-              elif pybadger.button.start:
-                  print("Button start")
-              elif pybadger.button.select:
-                  print("Button select")
-
+              if pybadger.button.x:
+                  print("Button X")
+              elif pybadger.button.o:
+                  print("Button O")
         """
         button_values = self._buttons.get_pressed()
         return Buttons(
@@ -135,11 +102,22 @@ class PyBadge(PyBadgerBase):
                     PyBadgerBase.BUTTON_RIGHT,
                     PyBadgerBase.BUTTON_DOWN,
                     PyBadgerBase.BUTTON_UP,
-                    PyBadgerBase.BUTTON_LEFT,
                 )
             ]
         )
 
+    @property
+    def _unsupported(self):
+        """This feature is not supported on PewPew M4."""
+        raise NotImplementedError("This feature is not supported on PewPew M4.")
 
-pybadge = PyBadge()  # pylint: disable=invalid-name
+    # The following is a list of the features available in other PyBadger modules but
+    # not available for CLUE. If called while using a CLUE, they will result in the
+    # NotImplementedError raised in the property above.
+    light = _unsupported
+    acceleration = _unsupported
+    pixels = _unsupported
+
+
+pewpewm4 = PewPewM4()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

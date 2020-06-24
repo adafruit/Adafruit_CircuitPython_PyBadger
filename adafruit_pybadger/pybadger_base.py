@@ -55,11 +55,10 @@ try:
     import audiocore
 except ImportError:
     import audioio as audiocore
+from adafruit_bitmap_font import bitmap_font
 import displayio
-import neopixel
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text import label
-from adafruit_bitmap_font import bitmap_font
 import terminalio
 import adafruit_miniqr
 
@@ -136,10 +135,7 @@ class PyBadgerBase:
         self.display = board.DISPLAY
         self._display_brightness = 1.0
 
-        # NeoPixels
-        self._neopixels = neopixel.NeoPixel(
-            board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
-        )
+        self._neopixels = None
 
         # Auto dim display based on movement
         self._last_accelerometer = None

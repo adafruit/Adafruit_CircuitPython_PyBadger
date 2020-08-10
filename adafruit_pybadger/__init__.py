@@ -35,3 +35,5 @@ elif "PewPew M4" in os.uname().machine:
     from .pewpewm4 import pewpewm4 as pybadger
 elif "PyPortal" in os.uname().machine:
     from .pyportal import pyportal as pybadger
+elif "Circuit Playground Bluefruit" in os.uname().machine:
+    from .cpb_gizmo import cpb_gizmo as pybadger

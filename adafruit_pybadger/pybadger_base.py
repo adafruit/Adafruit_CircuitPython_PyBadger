@@ -50,11 +50,6 @@ import math
 import board
 from micropython import const
 import digitalio
-
-try:
-    import audiocore
-except ImportError:
-    import audioio as audiocore
 from adafruit_bitmap_font import bitmap_font
 import displayio
 from adafruit_display_shapes.rect import Rect
@@ -62,6 +57,19 @@ from adafruit_display_text import label
 import terminalio
 import adafruit_miniqr
 
+AUDIO_ENABLED = False
+try:
+    import audiocore
+
+    AUDIO_ENABLED = True
+except ImportError:
+    try:
+        import audioio as audiocore
+
+        AUDIO_ENABLED = True
+    except ImportError:
+        # Allow to work with no audio
+        pass
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
@@ -685,11 +693,17 @@ class PyBadgerBase:
             yield int(tone_volume * math.sin(2 * math.pi * (i / length)) + shift)
 
     def _generate_sample(self, length=100):
-        if self._sample is not None:
-            return
-        self._sine_wave = array.array("H", PyBadgerBase._sine_sample(length))
-        self._sample = self._audio_out(board.SPEAKER)  # pylint: disable=not-callable
-        self._sine_wave_sample = audiocore.RawSample(self._sine_wave)
+        if AUDIO_ENABLED:
+            if self._sample is not None:
+                return
+            self._sine_wave = array.array("H", PyBadgerBase._sine_sample(length))
+            # pylint: disable=not-callable
+            self._sample = self._audio_out(
+                board.SPEAKER
+            )  # pylint: disable=not-callable
+            self._sine_wave_sample = audiocore.RawSample(self._sine_wave)
+        else:
+            print("Required audio modules were missing")
 
     def _enable_speaker(self, enable):
         if not hasattr(board, "SPEAKER_ENABLE"):

@@ -132,8 +132,9 @@ class PyBadgerBase:
         self._created_background = False
 
         # Display
-        self.display = board.DISPLAY
-        self._display_brightness = 1.0
+        if "DISPLAY" in dir(board):
+            self.display = board.DISPLAY
+            self._display_brightness = 1.0
 
         self._neopixels = None
 
@@ -212,9 +213,8 @@ class PyBadgerBase:
         )
         return self._background_group
 
-    @classmethod
     def _badge_background(
-        cls,
+        self,
         background_color=(255, 0, 0),
         rectangle_color=(255, 255, 255),
         rectangle_drop=0.4,
@@ -223,7 +223,7 @@ class PyBadgerBase:
         """Populate the background color with a rectangle color block over it as the background for
          a name badge."""
         background_group = displayio.Group(max_size=30)
-        color_bitmap = displayio.Bitmap(board.DISPLAY.width, board.DISPLAY.height, 1)
+        color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
         color_palette = displayio.Palette(1)
         color_palette[0] = background_color
 
@@ -234,9 +234,9 @@ class PyBadgerBase:
 
         rectangle = Rect(
             0,
-            (int(board.DISPLAY.height * rectangle_drop)),
-            board.DISPLAY.width,
-            (int(board.DISPLAY.height * rectangle_height)),
+            (int(self.display.height * rectangle_drop)),
+            self.display.width,
+            (int(self.display.height * rectangle_height)),
             fill=rectangle_color,
         )
         background_group.append(rectangle)

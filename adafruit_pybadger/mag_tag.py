@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`adafruit_pybadger.clue`
+`adafruit_pybadger.mag_tag`
 ================================================================================
 
 Badge-focused CircuitPython helper library for Mag Tag.

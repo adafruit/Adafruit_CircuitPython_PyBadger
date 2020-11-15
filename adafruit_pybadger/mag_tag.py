@@ -23,7 +23,7 @@
 `adafruit_pybadger.clue`
 ================================================================================
 
-Badge-focused CircuitPython helper library for CLUE.
+Badge-focused CircuitPython helper library for Mag Tag.
 
 
 * Author(s): Kattni Rembor, Tim C
@@ -33,7 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
-* `Adafruit CLUE <https://www.adafruit.com/product/4500>`_
+* `Adafruit Mag Tag <https://www.adafruit.com/product/4800>`_
 
 **Software and Dependencies:**
 
@@ -44,8 +44,9 @@ Implementation Notes
 
 from collections import namedtuple
 import board
-import digitalio
-from gamepad import GamePad
+
+# import digitalio
+# from gamepad import GamePad
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
@@ -91,7 +92,6 @@ class MagTag(PyBadgerBase):
               elif pybadger.button.b:
                   print("Button B")
         """
-        pass
         # button_values = self._buttons.get_pressed()
         # return Buttons(
         #    button_values & PyBadgerBase.BUTTON_B, button_values & PyBadgerBase.BUTTON_A,

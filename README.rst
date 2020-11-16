@@ -13,7 +13,7 @@ Introduction
     :target: https://github.com/adafruit/Adafruit_CircuitPython_PyBadger/actions/
     :alt: Build Status
 
-Badge-focused CircuitPython helper library for PyBadge, PyBadge LC, PyGamer and CLUE.
+Badge-focused CircuitPython helper library for PyBadge, PyBadge LC, PyGamer, CLUE, and Mag Tag.
 
 
 Dependencies

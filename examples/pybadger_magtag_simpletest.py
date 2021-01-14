@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """Simpletest example using the Mag Tag.
    Use the A, B, and C buttons to change between examples."""
 import time
@@ -7,8 +10,8 @@ from adafruit_pybadger import pybadger
 
 
 def try_refresh():
-    """ Attempt to refresh the display. Catch 'refresh too soon' error
-        and retry after waiting 10 seconds.
+    """Attempt to refresh the display. Catch 'refresh too soon' error
+    and retry after waiting 10 seconds.
     """
     try:
         board.DISPLAY.refresh()

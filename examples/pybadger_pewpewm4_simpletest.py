@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """Simpletest example using the Pew Pew M4.
    Use the O, X, and Z buttons to change between examples."""
 from adafruit_pybadger import pybadger

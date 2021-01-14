@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2019-2020 Kattni Rembor for Adafruit Industries
 #
-# Copyright (c) 2019-2020 Kattni Rembor for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 `adafruit_pybadger.pybadger_base`
 ================================================================================
@@ -229,7 +212,7 @@ class PyBadgerBase:
         rectangle_height=0.5,
     ):
         """Populate the background color with a rectangle color block over it as the background for
-         a name badge."""
+        a name badge."""
         background_group = displayio.Group(max_size=30)
         color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
         color_palette = displayio.Palette(1)
@@ -629,8 +612,7 @@ class PyBadgerBase:
         self.display.show(group)
 
     def show_terminal(self):
-        """Revert to terminalio screen.
-        """
+        """Revert to terminalio screen."""
         self.display.show(None)
 
     @staticmethod
@@ -711,7 +693,7 @@ class PyBadgerBase:
         self._speaker_enable.value = enable
 
     def play_tone(self, frequency, duration):
-        """ Produce a tone using the speaker. Try changing frequency to change
+        """Produce a tone using the speaker. Try changing frequency to change
         the pitch of the tone.
 
         :param int frequency: The frequency of the tone in Hz
@@ -724,7 +706,7 @@ class PyBadgerBase:
         self.stop_tone()
 
     def start_tone(self, frequency):
-        """ Produce a tone using the speaker. Try changing frequency to change
+        """Produce a tone using the speaker. Try changing frequency to change
         the pitch of the tone. Use ``stop_tone`` to stop the tone.
 
         :param int frequency: The frequency of the tone in Hz
@@ -741,8 +723,7 @@ class PyBadgerBase:
             self._sample.play(self._sine_wave_sample, loop=True)
 
     def stop_tone(self):
-        """ Use with ``start_tone`` to stop the tone produced.
-        """
+        """Use with ``start_tone`` to stop the tone produced."""
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:
             self._sample.stop()
@@ -751,7 +732,7 @@ class PyBadgerBase:
         self._enable_speaker(enable=False)
 
     def play_file(self, file_name):
-        """ Play a .wav file using the onboard speaker.
+        """Play a .wav file using the onboard speaker.
 
         :param file_name: The name of your .wav file in quotation marks including .wav
 

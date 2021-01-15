@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """Simpletest example using Adafruit PyPortal. Uses the touchscreen to advance between examples."""
 import board
 import adafruit_touchscreen

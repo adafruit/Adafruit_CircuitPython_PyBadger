@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """Custom badge for PyBadge or PyGamer."""
 from adafruit_pybadger import pybadger
 

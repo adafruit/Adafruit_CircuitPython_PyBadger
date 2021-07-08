@@ -145,7 +145,7 @@ class PyBadgerBase:
         self._created_background = True
 
         if self._background_group is None:
-            self._background_group = displayio.Group(max_size=30)
+            self._background_group = displayio.Group()
 
         self.display.show(self._background_group)
 
@@ -213,7 +213,7 @@ class PyBadgerBase:
     ):
         """Populate the background color with a rectangle color block over it as the background for
         a name badge."""
-        background_group = displayio.Group(max_size=30)
+        background_group = displayio.Group()
         color_bitmap = displayio.Bitmap(self.display.width, self.display.height, 1)
         color_palette = displayio.Palette(1)
         color_palette[0] = background_color
@@ -512,7 +512,7 @@ class PyBadgerBase:
             )
             business_card_label_groups.append(email_two_group)
 
-        business_card_splash = displayio.Group(max_size=4)
+        business_card_splash = displayio.Group()
         self.display.show(business_card_splash)
         with open(image_name, "rb") as file_name:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)

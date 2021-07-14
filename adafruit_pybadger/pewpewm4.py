@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-`adafruit_pybadger.clue`
+`adafruit_pybadger.pewpewm4`
 ================================================================================
 
 Badge-focused CircuitPython helper library for Pew Pew M4.

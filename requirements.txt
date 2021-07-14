@@ -3,3 +3,11 @@
 # SPDX-License-Identifier: Unlicense
 
 Adafruit-Blinka
+adafruit-circuitpython-bitmap-font
+adafruit-circuitpython-display-shapes
+adafruit-circuitpython-display-text
+adafruit-circuitpython-gizmo
+adafruit-circuitpython-lis3dh
+adafruit-circuitpython-lsm6ds
+adafruit-circuitpython-miniqr
+adafruit-circuitpython-neopixel

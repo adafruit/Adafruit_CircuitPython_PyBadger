@@ -153,26 +153,26 @@ class PyBadgerBase:
             with open(self._background_image_filename, "rb") as file_handle:
                 on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
                 background_image = displayio.TileGrid(
-                    on_disk_bitmap, pixel_shader=displayio.ColorConverter()
+                    on_disk_bitmap,
+                    pixel_shader=getattr(
+                        on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
+                    ),
+                    # TODO: Once CP6 is no longer supported, replace the above line with below
+                    # pixel_shader=on_disk_background.pixel_shader,
                 )
                 self._background_group.append(background_image)
                 for image_label in self._lines:
                     self._background_group.append(image_label)
 
-                try:
-                    # Refresh display in CircuitPython 5
-                    self.display.refresh()
-                except AttributeError:
-                    # Refresh display in CircuitPython 4
-                    self.display.wait_for_frame()
+                self.display.refresh()
         else:
             for background_label in self._lines:
                 self._background_group.append(background_label)
 
     def badge_background(
         self,
-        background_color=(255, 0, 0),
-        rectangle_color=(255, 255, 255),
+        background_color=RED,
+        rectangle_color=WHITE,
         rectangle_drop=0.4,
         rectangle_height=0.5,
     ):
@@ -206,8 +206,8 @@ class PyBadgerBase:
 
     def _badge_background(
         self,
-        background_color=(255, 0, 0),
-        rectangle_color=(255, 255, 255),
+        background_color=RED,
+        rectangle_color=WHITE,
         rectangle_drop=0.4,
         rectangle_height=0.5,
     ):
@@ -254,7 +254,7 @@ class PyBadgerBase:
     def badge_line(
         self,
         text=" ",
-        color=(0, 0, 0),
+        color=BLACK,
         scale=1,
         font=terminalio.FONT,
         left_justify=False,
@@ -517,26 +517,27 @@ class PyBadgerBase:
         with open(image_name, "rb") as file_name:
             on_disk_bitmap = displayio.OnDiskBitmap(file_name)
             face_image = displayio.TileGrid(
-                on_disk_bitmap, pixel_shader=displayio.ColorConverter()
+                on_disk_bitmap,
+                pixel_shader=getattr(
+                    on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
+                ),
+                # TODO: Once CP6 is no longer supported, replace the above line with below
+                # pixel_shader=on_disk_bitmap.pixel_shader,
             )
             business_card_splash.append(face_image)
             for group in business_card_label_groups:
                 business_card_splash.append(group)
-            try:
-                # Refresh display in CircuitPython 5
-                self.display.refresh()
-            except AttributeError:
-                # Refresh display in CircuitPython 4
-                self.display.wait_for_frame()
+
+            self.display.refresh()
 
     # pylint: disable=too-many-locals
     def show_badge(
         self,
         *,
-        background_color=(255, 0, 0),
-        foreground_color=(255, 255, 255),
-        background_text_color=(255, 255, 255),
-        foreground_text_color=(0, 0, 0),
+        background_color=RED,
+        foreground_color=WHITE,
+        background_text_color=WHITE,
+        foreground_text_color=BLACK,
         hello_font=terminalio.FONT,
         hello_scale=1,
         hello_string="HELLO",

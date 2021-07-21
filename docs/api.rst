@@ -10,8 +10,17 @@
 .. automodule:: adafruit_pybadger.clue
    :members:
 
+.. automodule:: adafruit_pybadger.mag_tag
+   :members:
+
+.. automodule:: adafruit_pybadger.pewpewm4
+   :members:
+
 .. automodule:: adafruit_pybadger.pybadge
    :members:
 
 .. automodule:: adafruit_pybadger.pygamer
+   :members:
+
+.. automodule:: adafruit_pybadger.pyportal
    :members:

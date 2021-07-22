@@ -302,9 +302,7 @@ class PyBadgerBase:
         if isinstance(font, str):
             font = load_font(font, text)
 
-        text_label = self._label.Label(
-            font=font, text=text, max_glyphs=45, color=color, scale=scale
-        )
+        text_label = self._label.Label(font=font, text=text, color=color, scale=scale)
         self._lines.append(text_label)
 
         _, _, width, height = text_label.bounding_box

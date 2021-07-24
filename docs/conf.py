@@ -8,6 +8,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("mocks"))
 
 # -- General configuration ------------------------------------------------
 
@@ -28,13 +29,12 @@ extensions = [
 autodoc_mock_imports = [
     "audioio",
     "displayio",
-    "gamepadshift",
+    "keypad",
     "neopixel",
     "analogio",
     "terminalio",
     "adafruit_lis3dh",
     "adafruit_lsm6ds",
-    "gamepad",
     "audiocore",
     "audiopwmio",
     "micropython",

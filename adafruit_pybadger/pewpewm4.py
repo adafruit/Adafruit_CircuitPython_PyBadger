@@ -27,10 +27,9 @@ Implementation Notes
 
 from collections import namedtuple
 import board
-import digitalio
 import audioio
-from gamepad import GamePad
-from adafruit_pybadger.pybadger_base import PyBadgerBase
+import keypad
+from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -47,15 +46,21 @@ class PewPewM4(PyBadgerBase):
     def __init__(self):
         super().__init__()
 
-        self._buttons = GamePad(
-            digitalio.DigitalInOut(board.BUTTON_O),
-            digitalio.DigitalInOut(board.BUTTON_X),
-            digitalio.DigitalInOut(board.BUTTON_Z),
-            digitalio.DigitalInOut(board.BUTTON_RIGHT),
-            digitalio.DigitalInOut(board.BUTTON_DOWN),
-            digitalio.DigitalInOut(board.BUTTON_UP),
-            digitalio.DigitalInOut(board.BUTTON_LEFT),
+        self._keys = keypad.Keys(
+            [
+                board.BUTTON_O,
+                board.BUTTON_X,
+                board.BUTTON_Z,
+                board.BUTTON_RIGHT,
+                board.BUTTON_DOWN,
+                board.BUTTON_UP,
+                board.BUTTON_LEFT,
+            ],
+            value_when_pressed=False,
+            pull=True,
         )
+
+        self._buttons = KeyStates(self._keys)
 
     @property
     def button(self):
@@ -73,20 +78,18 @@ class PewPewM4(PyBadgerBase):
               elif pybadger.button.o:
                   print("Button O")
         """
-        button_values = self._buttons.get_pressed()
+        self._buttons.update()
+        button_values = tuple(
+            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
+        )
         return Buttons(
-            *[
-                button_values & button
-                for button in (
-                    PyBadgerBase.BUTTON_B,
-                    PyBadgerBase.BUTTON_A,
-                    PyBadgerBase.BUTTON_START,
-                    PyBadgerBase.BUTTON_SELECT,
-                    PyBadgerBase.BUTTON_RIGHT,
-                    PyBadgerBase.BUTTON_DOWN,
-                    PyBadgerBase.BUTTON_UP,
-                )
-            ]
+            button_values[0],
+            button_values[1],
+            button_values[2],
+            button_values[3],
+            button_values[4],
+            button_values[5],
+            button_values[6],
         )
 
     @property

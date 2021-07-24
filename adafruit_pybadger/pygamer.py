@@ -31,9 +31,9 @@ import analogio
 import digitalio
 import audioio
 import neopixel
-from gamepadshift import GamePadShift
+import keypad
 import adafruit_lis3dh
-from adafruit_pybadger.pybadger_base import PyBadgerBase
+from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -65,11 +65,14 @@ class PyGamer(PyBadgerBase):
             board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
         )
 
-        self._buttons = GamePadShift(
-            digitalio.DigitalInOut(board.BUTTON_CLOCK),
-            digitalio.DigitalInOut(board.BUTTON_OUT),
-            digitalio.DigitalInOut(board.BUTTON_LATCH),
+        self._keys = keypad.ShiftRegisterKeys(
+            clock=board.BUTTON_CLOCK,
+            data=board.BUTTON_OUT,
+            latch=board.BUTTON_LATCH,
+            key_count=4,
+            value_when_pressed=True,
         )
+        self._buttons = KeyStates(self._keys)
 
         self._pygamer_joystick_x = analogio.AnalogIn(board.JOYSTICK_X)
         self._pygamer_joystick_y = analogio.AnalogIn(board.JOYSTICK_Y)
@@ -97,13 +100,16 @@ class PyGamer(PyBadgerBase):
                   print("Button select")
 
         """
-        button_values = self._buttons.get_pressed()
+        self._buttons.update()
+        button_values = tuple(
+            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
+        )
         x, y = self.joystick
         return Buttons(
-            button_values & PyBadgerBase.BUTTON_B,
-            button_values & PyBadgerBase.BUTTON_A,
-            button_values & PyBadgerBase.BUTTON_START,
-            button_values & PyBadgerBase.BUTTON_SELECT,
+            button_values[0],
+            button_values[1],
+            button_values[2],
+            button_values[3],
             x > 50000,  # RIGHT
             y > 50000,  # DOWN
             y < 15000,  # UP

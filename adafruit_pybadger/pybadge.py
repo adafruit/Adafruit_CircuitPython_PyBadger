@@ -113,7 +113,16 @@ class PyBadge(PyBadgerBase):
         button_values = tuple(
             self._buttons.was_pressed(i) for i in range(self._keys.key_count)
         )
-        return Buttons(*[button_values])
+        return Buttons(
+            button_values[0],
+            button_values[1],
+            button_values[2],
+            button_values[3],
+            button_values[4],
+            button_values[5],
+            button_values[6],
+            button_values[7],
+        )
 
 
 pybadge = PyBadge()  # pylint: disable=invalid-name

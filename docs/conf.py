@@ -29,7 +29,6 @@ extensions = [
 autodoc_mock_imports = [
     "audioio",
     "displayio",
-    "keypad",
     "neopixel",
     "analogio",
     "terminalio",

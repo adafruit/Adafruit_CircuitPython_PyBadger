@@ -355,7 +355,7 @@ class PyBadgerBase:
         font,
         scale,
         height_adjustment,
-        font_background_color=None,
+        background_color=None,
         color=0xFFFFFF,
         width_adjustment=2,
         line_spacing=0.75,

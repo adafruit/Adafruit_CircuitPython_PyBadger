@@ -366,7 +366,12 @@ class PyBadgerBase:
             font = load_font(font, text)
 
         create_label_group = displayio.Group(scale=scale)
-        create_label = self._label.Label(font, text=text, line_spacing=line_spacing, background_color=background_color)
+        create_label = self._label.Label(
+            font,
+            text=text,
+            line_spacing=line_spacing,
+            background_color=background_color,
+        )
         _, _, width, _ = create_label.bounding_box
         create_label.x = (self.display.width // (width_adjustment * scale)) - width // 2
         create_label.y = int(self.display.height * (height_adjustment / scale))

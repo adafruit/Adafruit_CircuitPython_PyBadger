@@ -355,6 +355,7 @@ class PyBadgerBase:
         font,
         scale,
         height_adjustment,
+        background_color=None,
         color=0xFFFFFF,
         width_adjustment=2,
         line_spacing=0.75,
@@ -365,7 +366,12 @@ class PyBadgerBase:
             font = load_font(font, text)
 
         create_label_group = displayio.Group(scale=scale)
-        create_label = self._label.Label(font, text=text, line_spacing=line_spacing)
+        create_label = self._label.Label(
+            font,
+            text=text,
+            line_spacing=line_spacing,
+            background_color=background_color,
+        )
         _, _, width, _ = create_label.bounding_box
         create_label.x = (self.display.width // (width_adjustment * scale)) - width // 2
         create_label.y = int(self.display.height * (height_adjustment / scale))
@@ -447,6 +453,8 @@ class PyBadgerBase:
         name_string=None,
         name_scale=1,
         name_font=terminalio.FONT,
+        font_color=0xFFFFFF,
+        font_background_color=None,
         email_string_one=None,
         email_scale_one=1,
         email_font_one=terminalio.FONT,
@@ -489,24 +497,30 @@ class PyBadgerBase:
             name_group = self._create_label_group(
                 text=name_string,
                 font=name_font,
+                color=font_color,
                 scale=name_scale,
                 height_adjustment=0.73,
+                background_color=font_background_color,
             )
             business_card_label_groups.append(name_group)
         if email_string_one:
             email_one_group = self._create_label_group(
                 text=email_string_one,
                 font=email_font_one,
+                color=font_color,
                 scale=email_scale_one,
                 height_adjustment=0.84,
+                background_color=font_background_color,
             )
             business_card_label_groups.append(email_one_group)
         if email_string_two:
             email_two_group = self._create_label_group(
                 text=email_string_two,
                 font=email_font_two,
+                color=font_color,
                 scale=email_scale_two,
                 height_adjustment=0.91,
+                background_color=font_background_color,
             )
             business_card_label_groups.append(email_two_group)
 

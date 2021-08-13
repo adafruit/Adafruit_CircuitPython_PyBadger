@@ -448,6 +448,7 @@ class PyBadgerBase:
         name_string=None,
         name_scale=1,
         name_font=terminalio.FONT,
+        font_color=0xFFFFFF,
         background_color=None,
         email_string_one=None,
         email_scale_one=1,
@@ -491,6 +492,7 @@ class PyBadgerBase:
             name_group = self._create_label_group(
                 text=name_string,
                 font=name_font,
+                color=font_color,
                 scale=name_scale,
                 height_adjustment=0.73,
                 background_color=background_color,
@@ -500,6 +502,7 @@ class PyBadgerBase:
             email_one_group = self._create_label_group(
                 text=email_string_one,
                 font=email_font_one,
+                color=font_color,
                 scale=email_scale_one,
                 height_adjustment=0.84,
                 background_color=background_color,
@@ -509,6 +512,7 @@ class PyBadgerBase:
             email_two_group = self._create_label_group(
                 text=email_string_two,
                 font=email_font_two,
+                color=font_color,
                 scale=email_scale_two,
                 height_adjustment=0.91,
                 background_color=background_color,

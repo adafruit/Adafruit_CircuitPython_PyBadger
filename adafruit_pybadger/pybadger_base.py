@@ -370,7 +370,7 @@ class PyBadgerBase:
             font,
             text=text,
             line_spacing=line_spacing,
-            background_color=font_background_color,
+            background_color=background_color,
         )
         _, _, width, _ = create_label.bounding_box
         create_label.x = (self.display.width // (width_adjustment * scale)) - width // 2

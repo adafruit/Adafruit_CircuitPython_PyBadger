@@ -754,7 +754,9 @@ class PyBadgerBase:
         self.stop_tone()
         self._enable_speaker(enable=True)
         with self._audio_out(board.SPEAKER) as audio:  # pylint: disable=not-callable
-            wavefile = audiocore.WaveFile(open(file_name, "rb"))
+            wavefile = audiocore.WaveFile(
+                open(file_name, "rb")  # pylint: disable=consider-using-with
+            )
             audio.play(wavefile)
             while audio.playing:
                 pass

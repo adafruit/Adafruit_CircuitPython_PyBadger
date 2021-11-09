@@ -761,3 +761,46 @@ class PyBadgerBase:
             while audio.playing:
                 pass
         self._enable_speaker(enable=True)
+
+
+class KeyStates:
+    """Convert `keypad.Event` information from the given `keypad` scanner into key-pressed state.
+
+    :param scanner: a `keypad` scanner, such as `keypad.Keys`
+    """
+
+    def __init__(self, scanner):
+        self._scanner = scanner
+        self._pressed = [False] * self._scanner.key_count
+        self.update()
+
+    def update(self):
+        """Update key information based on pending scanner events."""
+
+        # If the event queue overflowed, discard any pending events,
+        # and assume all keys are now released.
+        if self._scanner.events.overflowed:
+            self._scanner.events.clear()
+            self._scanner.reset()
+            self._pressed = [False] * self._scanner.key_count
+
+        self._was_pressed = self._pressed.copy()
+
+        while True:
+            event = self._scanner.events.get()
+            if not event:
+                # Event queue is now empty.
+                break
+            self._pressed[event.key_number] = event.pressed
+            if event.pressed:
+                self._was_pressed[event.key_number] = True
+
+    def was_pressed(self, key_number):
+        """True if key was down at any time since the last `update()`,
+        even if it was later released.
+        """
+        return self._was_pressed[key_number]
+
+    def pressed(self, key_number):
+        """True if key is currently pressed, as of the last `update()`."""
+        return self._pressed[key_number]

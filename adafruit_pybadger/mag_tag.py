@@ -27,9 +27,6 @@ Implementation Notes
 
 from collections import namedtuple
 import board
-
-# import digitalio
-# from gamepad import GamePad
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
@@ -52,13 +49,6 @@ class MagTag(PyBadgerBase):
             board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
         )
 
-        # self._buttons = GamePad(
-        #    ,
-        #    digitalio.DigitalInOut(board.BUTTON_B),
-        #    digitalio.DigitalInOut(board.BUTTON_C),
-        #    digitalio.DigitalInOut(board.BUTTON_D),
-        # )
-
     @property
     def button(self):
         """The buttons on the board.
@@ -75,11 +65,6 @@ class MagTag(PyBadgerBase):
               elif pybadger.button.b:
                   print("Button B")
         """
-        # button_values = self._buttons.get_pressed()
-        # return Buttons(
-        #    button_values & PyBadgerBase.BUTTON_B, button_values & PyBadgerBase.BUTTON_A,
-        #    button_values & PyBadgerBase.BUTTON_START, button_values & PyBadgerBase.BUTTON_SELECT
-        # )
 
     @property
     def _unsupported(self):

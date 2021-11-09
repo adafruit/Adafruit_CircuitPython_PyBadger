@@ -35,10 +35,10 @@ import board
 import digitalio
 import analogio
 import audioio
-from gamepadshift import GamePadShift
+import keypad
 import adafruit_lis3dh
 import neopixel
-from adafruit_pybadger.pybadger_base import PyBadgerBase
+from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -77,11 +77,14 @@ class PyBadge(PyBadgerBase):
             board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
         )
 
-        self._buttons = GamePadShift(
-            digitalio.DigitalInOut(board.BUTTON_CLOCK),
-            digitalio.DigitalInOut(board.BUTTON_OUT),
-            digitalio.DigitalInOut(board.BUTTON_LATCH),
+        self._keys = keypad.ShiftRegisterKeys(
+            clock=board.BUTTON_CLOCK,
+            data=board.BUTTON_OUT,
+            latch=board.BUTTON_LATCH,
+            key_count=8,
+            value_when_pressed=True,
         )
+        self._buttons = KeyStates(self._keys)
 
         self._light_sensor = analogio.AnalogIn(board.A7)
 
@@ -106,21 +109,19 @@ class PyBadge(PyBadgerBase):
                   print("Button select")
 
         """
-        button_values = self._buttons.get_pressed()
+        self._buttons.update()
+        button_values = tuple(
+            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
+        )
         return Buttons(
-            *[
-                button_values & button
-                for button in (
-                    PyBadgerBase.BUTTON_B,
-                    PyBadgerBase.BUTTON_A,
-                    PyBadgerBase.BUTTON_START,
-                    PyBadgerBase.BUTTON_SELECT,
-                    PyBadgerBase.BUTTON_RIGHT,
-                    PyBadgerBase.BUTTON_DOWN,
-                    PyBadgerBase.BUTTON_UP,
-                    PyBadgerBase.BUTTON_LEFT,
-                )
-            ]
+            button_values[0],
+            button_values[1],
+            button_values[2],
+            button_values[3],
+            button_values[4],
+            button_values[5],
+            button_values[6],
+            button_values[7],
         )
 
 

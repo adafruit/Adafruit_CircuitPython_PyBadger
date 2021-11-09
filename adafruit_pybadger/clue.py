@@ -27,12 +27,11 @@ Implementation Notes
 
 from collections import namedtuple
 import board
-import digitalio
 import audiopwmio
-from gamepad import GamePad
+import keypad
 import adafruit_lsm6ds.lsm6ds33
 import neopixel
-from adafruit_pybadger.pybadger_base import PyBadgerBase
+from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -59,10 +58,10 @@ class Clue(PyBadgerBase):
             board.NEOPIXEL, self._neopixel_count, brightness=1, pixel_order=neopixel.GRB
         )
 
-        self._buttons = GamePad(
-            digitalio.DigitalInOut(board.BUTTON_A),
-            digitalio.DigitalInOut(board.BUTTON_B),
+        self._keys = keypad.Keys(
+            [board.BUTTON_A, board.BUTTON_B], value_when_pressed=False, pull=True
         )
+        self._buttons = KeyStates(self._keys)
 
     @property
     def button(self):
@@ -80,10 +79,11 @@ class Clue(PyBadgerBase):
               elif pybadger.button.b:
                   print("Button B")
         """
-        button_values = self._buttons.get_pressed()
-        return Buttons(
-            button_values & PyBadgerBase.BUTTON_B, button_values & PyBadgerBase.BUTTON_A
+        self._buttons.update()
+        button_values = tuple(
+            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
         )
+        return Buttons(button_values[0], button_values[1])
 
     @property
     def _unsupported(self):

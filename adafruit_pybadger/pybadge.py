@@ -68,7 +68,9 @@ class PyBadge(PyBadgerBase):
                 pass
             _i2c_devices = i2c.scan()
             i2c.unlock()
-            if (int(0x18) in _i2c_devices):  # PyBadge LC doesn't have accelerometer
+
+            # PyBadge LC doesn't have accelerometer
+            if int(0x18) in _i2c_devices or int(0x19) in _i2c_devices:
                 int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
                 try:
                     self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(

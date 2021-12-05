@@ -64,10 +64,14 @@ class PyBadge(PyBadgerBase):
                 self._accelerometer = None
 
         if i2c is not None:
-            while not i2c.try_lock():
-                pass
-            _i2c_devices = i2c.scan()
-            i2c.unlock()
+            _i2c_devices = []
+
+            for i in range(10):
+                # try lock 10 times to avoid infinite loop in sphinx build
+                if i2c.try_lock():
+                    _i2c_devices = i2c.scan()
+                    i2c.unlock()
+                    break
 
             # PyBadge LC doesn't have accelerometer
             if int(0x18) in _i2c_devices or int(0x19) in _i2c_devices:

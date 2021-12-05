@@ -66,7 +66,7 @@ class PyBadge(PyBadgerBase):
         if i2c is not None:
             _i2c_devices = []
 
-            for i in range(10):
+            for _ in range(10):
                 # try lock 10 times to avoid infinite loop in sphinx build
                 if i2c.try_lock():
                     _i2c_devices = i2c.scan()

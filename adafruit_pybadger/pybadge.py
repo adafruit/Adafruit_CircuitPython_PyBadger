@@ -64,13 +64,24 @@ class PyBadge(PyBadgerBase):
                 self._accelerometer = None
 
         if i2c is not None:
-            int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
-            try:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
-                    i2c, address=0x19, int1=int1
-                )
-            except ValueError:
-                self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
+            _i2c_devices = []
+
+            for _ in range(10):
+                # try lock 10 times to avoid infinite loop in sphinx build
+                if i2c.try_lock():
+                    _i2c_devices = i2c.scan()
+                    i2c.unlock()
+                    break
+
+            # PyBadge LC doesn't have accelerometer
+            if int(0x18) in _i2c_devices or int(0x19) in _i2c_devices:
+                int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
+                try:
+                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
+                        i2c, address=0x19, int1=int1
+                    )
+                except ValueError:
+                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
         # NeoPixels
         self._neopixels = neopixel.NeoPixel(

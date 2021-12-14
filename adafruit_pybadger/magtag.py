@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-`adafruit_pybadger.mag_tag`
+`adafruit_pybadger.magtag`
 ================================================================================
 
 Badge-focused CircuitPython helper library for Mag Tag.
@@ -80,5 +80,5 @@ class MagTag(PyBadgerBase):
     button = _unsupported
 
 
-mag_tag = MagTag()  # pylint: disable=invalid-name
+magtag = MagTag()  # pylint: disable=invalid-name
 """Object that is automatically created on import."""

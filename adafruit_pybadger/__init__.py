@@ -21,4 +21,4 @@ elif "PyPortal" in os.uname().machine:
 elif "Circuit Playground Bluefruit" in os.uname().machine:
     from .cpb_gizmo import cpb_gizmo as pybadger
 elif "MagTag with ESP32S2" in os.uname().machine:
-    from .mag_tag import mag_tag as pybadger
+    from .magtag import magtag as pybadger

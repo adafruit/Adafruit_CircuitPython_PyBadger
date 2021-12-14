@@ -52,9 +52,6 @@ try_refresh()
 
 print("after show, going to loop")
 
-neopixel_pwr = digitalio.DigitalInOut(board.NEOPIXEL_POWER)
-neopixel_pwr.direction = digitalio.Direction.OUTPUT
-neopixel_pwr.value = False
 pybadger.pixels.fill(0x000022)
 
 while True:
@@ -65,7 +62,6 @@ while True:
 
     if prev_a and not cur_a:
         pybadger.pixels.fill(0x000000)
-        neopixel_pwr.value = True
         if SHOWING != "badge":
             print("changing to badge")
             SHOWING = "badge"
@@ -76,7 +72,6 @@ while True:
 
     if prev_b and not cur_b:
         pybadger.pixels.fill(0x000000)
-        neopixel_pwr.value = True
         if SHOWING != "qr":
             print("changing to qr")
             SHOWING = "qr"
@@ -85,7 +80,6 @@ while True:
 
     if prev_c and not cur_c:
         pybadger.pixels.fill(0x000000)
-        neopixel_pwr.value = True
         if SHOWING != "card":
             print("changing to card")
             SHOWING = "card"

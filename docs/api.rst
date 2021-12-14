@@ -10,7 +10,7 @@
 .. automodule:: adafruit_pybadger.clue
    :members:
 
-.. automodule:: adafruit_pybadger.mag_tag
+.. automodule:: adafruit_pybadger.magtag
    :members:
 
 .. automodule:: adafruit_pybadger.pewpewm4

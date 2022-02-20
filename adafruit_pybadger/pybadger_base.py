@@ -56,8 +56,8 @@ except ImportError:
 
 try:
     from typing import Union, Tuple, Optional, Generator
-    from adafruit_bitmap_font.bdf import BDF
-    from adafruit_bitmap_font.pcf import PCF
+    from adafruit_bitmap_font.bdf import BDF  # pylint: disable=ungrouped-imports
+    from adafruit_bitmap_font.pcf import PCF  # pylint: disable=ungrouped-imports
     from fontio import BuiltinFont
     from keypad import Keys, ShiftRegisterKeys
     from neopixel import NeoPixel
@@ -193,13 +193,15 @@ class PyBadgerBase:
         """Create a customisable badge background made up of a background color with a rectangle
         color block over it. Defaults are for ``show_badge``.
 
-        :param tuple background_color: The color to fill the entire screen as a background, as RGB values.
-        :param tuple rectangle_color: The color of a rectangle that displays over the background, as RGB values.
+        :param tuple background_color: The color to fill the entire screen as a background, as
+                                     RGB values.
+        :param tuple rectangle_color: The color of a rectangle that displays over the background,
+                                     as RGB values.
         :param float rectangle_drop: The distance from the top of the display to begin displaying
                                      the rectangle. Float represents a percentage of the display,
                                      e.g. 0.4 = 40% of the display. Defaults to ``0.4``.
-        :param float rectangle_height: The height of the rectangle. Float represents a percentage of
-                                       the display, e.g. 0.5 = 50% of the display. Defaults to
+        :param float rectangle_height: The height of the rectangle. Float represents a percentage
+                                       of the display, e.g. 0.5 = 50% of the display. Defaults to
                                        ``0.5``.
 
         .. code-block:: python
@@ -282,8 +284,8 @@ class PyBadgerBase:
         :param tuple color: The color of the line of text. Defaults to ``(0, 0, 0)``.
         :param int scale: The scale of the text. Must be an integer 1 or higher. Defaults to ``1``.
         :param font: The font used for displaying the text. Defaults to ``terminalio.FONT``.
-        :param bool left_justify: Left-justify the line of text. Defaults to ``False`` which centers the
-                             font on the display.
+        :param bool left_justify: Left-justify the line of text. Defaults to ``False`` which centers
+                             the font on the display.
         :param int padding_above: Add padding above the displayed line of text. A ``padding_above``
                                   of ``1`` is equivalent to the height of one line of text, ``2``
                                   is equivalent to the height of two lines of text, etc. Defaults
@@ -485,7 +487,8 @@ class PyBadgerBase:
         :param int name_scale: The scale of ``name_string``. Defaults to 1.
         :param name_font: The font for the name string. Defaults to ``terminalio.FONT``.
         :type name_font: ~BuiltinFont|~BDF|~PCF
-        :param int font_background_color: The color of the font background, default is None (transparent)
+        :param int font_background_color: The color of the font background, default is None
+                                            (transparent)
         :param int font_color: The font color, default is white
         :param str email_string_one: A string to display along the bottom of the display, e.g.
                                  ``"blinka@adafruit.com"``.

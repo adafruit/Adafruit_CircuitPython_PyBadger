@@ -38,6 +38,11 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 Buttons = namedtuple("Buttons", "a b")
 
+try:
+    from typing import Type
+except ImportError:
+    pass
+
 
 class Clue(PyBadgerBase):
     """Class that represents a single CLUE."""
@@ -45,7 +50,7 @@ class Clue(PyBadgerBase):
     _audio_out = audiopwmio.PWMAudioOut
     _neopixel_count = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         i2c = board.I2C()
@@ -64,7 +69,7 @@ class Clue(PyBadgerBase):
         self._buttons = KeyStates(self._keys)
 
     @property
-    def button(self):
+    def button(self) -> Type[tuple]:
         """The buttons on the board.
 
         Example use:

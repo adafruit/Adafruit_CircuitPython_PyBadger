@@ -30,6 +30,11 @@ import board
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
+try:
+    from typing import Type
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
@@ -41,7 +46,7 @@ class MagTag(PyBadgerBase):
 
     _neopixel_count = 4
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # NeoPixels
@@ -50,7 +55,7 @@ class MagTag(PyBadgerBase):
         )
 
     @property
-    def button(self):
+    def button(self) -> Type[tuple]:
         """The buttons on the board.
 
         Example use:

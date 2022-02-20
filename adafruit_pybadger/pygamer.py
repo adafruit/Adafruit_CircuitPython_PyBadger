@@ -35,6 +35,11 @@ import keypad
 import adafruit_lis3dh
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
+try:
+    from typing import Type, Tuple
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
@@ -47,7 +52,7 @@ class PyGamer(PyBadgerBase):
     _audio_out = audioio.AudioOut
     _neopixel_count = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         i2c = board.I2C()
@@ -80,7 +85,7 @@ class PyGamer(PyBadgerBase):
         self._light_sensor = analogio.AnalogIn(board.A7)
 
     @property
-    def button(self):
+    def button(self) -> Type[tuple]:
         """The buttons on the board.
 
         Example use:
@@ -117,7 +122,7 @@ class PyGamer(PyBadgerBase):
         )
 
     @property
-    def joystick(self):
+    def joystick(self) -> Tuple[int, int]:
         """The joystick on the PyGamer."""
         x = self._pygamer_joystick_x.value
         y = self._pygamer_joystick_y.value

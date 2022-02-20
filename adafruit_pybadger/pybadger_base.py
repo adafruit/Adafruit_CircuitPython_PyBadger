@@ -53,11 +53,25 @@ except ImportError:
     except ImportError:
         # Allow to work with no audio
         pass
+
+try:
+    from typing import Union, Tuple, Optional, Generator
+    from adafruit_bitmap_font.bdf import BDF
+    from adafruit_bitmap_font.pcf import PCF
+    from fontio import BuiltinFont
+    from keypad import Keys, ShiftRegisterKeys
+    from neopixel import NeoPixel
+    from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
+    from adafruit_lis3dh import LIS3DH_I2C
+except ImportError:
+    pass
+
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 
-def load_font(fontname, text):
+def load_font(fontname: str, text: str) -> Union[BDF, PCF]:
     """Load a font and glyphs in the text string
 
     :param str fontname: The full path to the font file.
@@ -112,7 +126,7 @@ class PyBadgerBase:
     BUTTON_A = const(2)
     BUTTON_B = const(1)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._light_sensor = None
         self._accelerometer = None
         self._label = label
@@ -141,7 +155,7 @@ class PyBadgerBase:
         self._sine_wave = None
         self._sine_wave_sample = None
 
-    def _create_badge_background(self):
+    def _create_badge_background(self) -> None:
         self._created_background = True
 
         if self._background_group is None:
@@ -171,16 +185,16 @@ class PyBadgerBase:
 
     def badge_background(
         self,
-        background_color=RED,
-        rectangle_color=WHITE,
-        rectangle_drop=0.4,
-        rectangle_height=0.5,
-    ):
+        background_color: Tuple[int, int, int] = RED,
+        rectangle_color: Tuple[int, int, int] = WHITE,
+        rectangle_drop: float = 0.4,
+        rectangle_height: float = 0.5,
+    ) -> displayio.Group:
         """Create a customisable badge background made up of a background color with a rectangle
         color block over it. Defaults are for ``show_badge``.
 
-        :param tuple background_color: The color to fill the entire screen as a background.
-        :param tuple rectangle_color: The color of a rectangle that displays over the background.
+        :param tuple background_color: The color to fill the entire screen as a background, as RGB values.
+        :param tuple rectangle_color: The color of a rectangle that displays over the background, as RGB values.
         :param float rectangle_drop: The distance from the top of the display to begin displaying
                                      the rectangle. Float represents a percentage of the display,
                                      e.g. 0.4 = 40% of the display. Defaults to ``0.4``.
@@ -206,11 +220,11 @@ class PyBadgerBase:
 
     def _badge_background(
         self,
-        background_color=RED,
-        rectangle_color=WHITE,
-        rectangle_drop=0.4,
-        rectangle_height=0.5,
-    ):
+        background_color: Tuple[int, int, int] = RED,
+        rectangle_color: Tuple[int, int, int] = WHITE,
+        rectangle_drop: float = 0.4,
+        rectangle_height: float = 0.5,
+    ) -> displayio.Group:
         """Populate the background color with a rectangle color block over it as the background for
         a name badge."""
         background_group = displayio.Group()
@@ -233,7 +247,7 @@ class PyBadgerBase:
         background_group.append(rectangle)
         return background_group
 
-    def image_background(self, image_name=None):
+    def image_background(self, image_name: Optional[str] = None) -> None:
         """Create a bitmap image background.
 
         :param str image_name: The name of the bitmap image as a string including ``.bmp``, e.g.
@@ -253,13 +267,13 @@ class PyBadgerBase:
     # pylint: disable=too-many-arguments
     def badge_line(
         self,
-        text=" ",
-        color=BLACK,
-        scale=1,
-        font=terminalio.FONT,
-        left_justify=False,
-        padding_above=0,
-    ):
+        text: str = " ",
+        color: Tuple[int, int, int] = BLACK,
+        scale: int = 1,
+        font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        left_justify: bool = False,
+        padding_above: int = 0,
+    ) -> None:
         """Add a line of text to the display. Designed to work with ``badge_background`` for a
         color-block style badge, or with ``image_background`` for a badge with a background image.
 
@@ -268,7 +282,7 @@ class PyBadgerBase:
         :param tuple color: The color of the line of text. Defaults to ``(0, 0, 0)``.
         :param int scale: The scale of the text. Must be an integer 1 or higher. Defaults to ``1``.
         :param font: The font used for displaying the text. Defaults to ``terminalio.FONT``.
-        :param left_justify: Left-justify the line of text. Defaults to ``False`` which centers the
+        :param bool left_justify: Left-justify the line of text. Defaults to ``False`` which centers the
                              font on the display.
         :param int padding_above: Add padding above the displayed line of text. A ``padding_above``
                                   of ``1`` is equivalent to the height of one line of text, ``2``
@@ -339,7 +353,7 @@ class PyBadgerBase:
             else:
                 self._y_position += height * scale + 4
 
-    def show_custom_badge(self):
+    def show_custom_badge(self) -> None:
         """Call ``pybadger.show_custom_badge()`` to display the custom badge elements. If
         ``show_custom_badge()`` is not called, the custom badge elements will not be displayed.
         """
@@ -351,15 +365,15 @@ class PyBadgerBase:
     # pylint: disable=too-many-arguments
     def _create_label_group(
         self,
-        text,
-        font,
-        scale,
-        height_adjustment,
-        background_color=None,
-        color=0xFFFFFF,
-        width_adjustment=2,
-        line_spacing=0.75,
-    ):
+        text: str,
+        font: Union[BuiltinFont, BDF, PCF],
+        scale: int,
+        height_adjustment: float,
+        background_color: Optional[int] = None,
+        color: int = 0xFFFFFF,
+        width_adjustment: float = 2,
+        line_spacing: float = 0.75,
+    ) -> displayio.Group:
         """Create a label group with the given text, font, and spacing."""
         # If the given font is a string, treat it as a file path and try to load it
         if isinstance(font, str):
@@ -379,7 +393,7 @@ class PyBadgerBase:
         create_label_group.append(create_label)
         return create_label_group
 
-    def _check_for_movement(self, movement_threshold=10):
+    def _check_for_movement(self, movement_threshold: int = 10) -> bool:
         """Checks to see if board is moving. Used to auto-dim display when not moving."""
         current_accelerometer = self.acceleration
         if self._last_accelerometer is None:
@@ -394,10 +408,10 @@ class PyBadgerBase:
         self._last_accelerometer = current_accelerometer
         return acceleration_delta > movement_threshold
 
-    def auto_dim_display(self, delay=5.0, movement_threshold=10):
+    def auto_dim_display(self, delay: float = 5.0, movement_threshold: int = 10):
         """Auto-dim the display when board is not moving.
 
-        :param int delay: Time in seconds before display auto-dims after movement has ceased.
+        :param float delay: Time in seconds before display auto-dims after movement has ceased.
         :param int movement_threshold: Threshold required for movement to be considered stopped.
                                        Change to increase or decrease sensitivity.
 
@@ -417,17 +431,17 @@ class PyBadgerBase:
             self.display.brightness = self._display_brightness
 
     @property
-    def pixels(self):
+    def pixels(self) -> NeoPixel:
         """Sequence like object representing the NeoPixels on the board."""
         return self._neopixels
 
     @property
-    def light(self):
+    def light(self) -> bool:
         """Light sensor data."""
         return self._light_sensor.value
 
     @property
-    def acceleration(self):
+    def acceleration(self) -> Union[LSM6DS33, LIS3DH_I2C]:
         """Accelerometer data, +/- 2G sensitivity."""
         return (
             self._accelerometer.acceleration
@@ -436,12 +450,12 @@ class PyBadgerBase:
         )
 
     @property
-    def brightness(self):
+    def brightness(self) -> float:
         """Display brightness. Must be a value between ``0`` and ``1``."""
         return self.display.brightness
 
     @brightness.setter
-    def brightness(self, value):
+    def brightness(self, value: float) -> None:
         self._display_brightness = value
         self.display.brightness = value
 
@@ -449,19 +463,19 @@ class PyBadgerBase:
     def show_business_card(
         self,
         *,
-        image_name=None,
-        name_string=None,
-        name_scale=1,
-        name_font=terminalio.FONT,
-        font_color=0xFFFFFF,
-        font_background_color=None,
-        email_string_one=None,
-        email_scale_one=1,
-        email_font_one=terminalio.FONT,
-        email_string_two=None,
-        email_scale_two=1,
-        email_font_two=terminalio.FONT
-    ):
+        image_name: Optional[str] = None,
+        name_string: Optional[str] = None,
+        name_scale: int = 1,
+        name_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        font_color: int = 0xFFFFFF,
+        font_background_color: Optional[int] = None,
+        email_string_one: Optional[str] = None,
+        email_scale_one: int = 1,
+        email_font_one: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        email_string_two: Optional[str] = None,
+        email_scale_two: int = 1,
+        email_font_two: Union[BuiltinFont, BDF, PCF] = terminalio.FONT
+    ) -> None:
         """Display a bitmap image and a text string, such as a personal image and email address.
 
         :param str image_name: REQUIRED. The name of the bitmap image including .bmp, e.g.
@@ -470,10 +484,14 @@ class PyBadgerBase:
                                  ``"Blinka"``.
         :param int name_scale: The scale of ``name_string``. Defaults to 1.
         :param name_font: The font for the name string. Defaults to ``terminalio.FONT``.
+        :type name_font: ~BuiltinFont|~BDF|~PCF
+        :param int font_background_color: The color of the font background, default is None (transparent)
+        :param int font_color: The font color, default is white
         :param str email_string_one: A string to display along the bottom of the display, e.g.
                                  ``"blinka@adafruit.com"``.
         :param int email_scale_one: The scale of ``email_string_one``. Defaults to 1.
         :param email_font_one: The font for the first email string. Defaults to ``terminalio.FONT``.
+        :type email_font_one: ~BuiltinFont|~BDF|~PCF
         :param str email_string_two: A second string to display along the bottom of the display.
                                      Use if your email address is longer than one line or to add
                                      more space between the name and email address,
@@ -481,6 +499,7 @@ class PyBadgerBase:
         :param int email_scale_two: The scale of ``email_string_two``. Defaults to 1.
         :param email_font_two: The font for the second email string. Defaults to
                                ``terminalio.FONT``.
+        :type email_font_two: ~BuiltinFont|~BDF|~PCF
 
         .. code-block:: python
 
@@ -546,38 +565,41 @@ class PyBadgerBase:
     def show_badge(
         self,
         *,
-        background_color=RED,
-        foreground_color=WHITE,
-        background_text_color=WHITE,
-        foreground_text_color=BLACK,
-        hello_font=terminalio.FONT,
-        hello_scale=1,
-        hello_string="HELLO",
-        my_name_is_font=terminalio.FONT,
-        my_name_is_scale=1,
-        my_name_is_string="MY NAME IS",
-        name_font=terminalio.FONT,
-        name_scale=1,
-        name_string="Blinka"
-    ):
+        background_color: Tuple[int, int, int] = RED,
+        foreground_color: Tuple[int, int, int] = WHITE,
+        background_text_color: Tuple[int, int, int] = WHITE,
+        foreground_text_color: Tuple[int, int, int] = BLACK,
+        hello_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        hello_scale: int = 1,
+        hello_string: str = "HELLO",
+        my_name_is_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        my_name_is_scale: int = 1,
+        my_name_is_string: str = "MY NAME IS",
+        name_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
+        name_scale: int = 1,
+        name_string: str = "Blinka"
+    ) -> None:
         """Create a "Hello My Name is"-style badge.
 
-        :param background_color: The color of the background. Defaults to ``(255, 0, 0)``.
-        :param foreground_color: The color of the foreground rectangle. Defaults to
+        :param tuple background_color: The color of the background. Defaults to ``(255, 0, 0)``.
+        :param tuple foreground_color: The color of the foreground rectangle. Defaults to
                                  ``(255, 255, 255)``.
-        :param background_text_color: The color of the "HELLO MY NAME IS" text. Defaults to
+        :param tuple background_text_color: The color of the "HELLO MY NAME IS" text. Defaults to
                                       ``(255, 255, 255)``.
-        :param foreground_text_color: The color of the name text. Defaults to ``(0, 0, 0)``.
+        :param tuple foreground_text_color: The color of the name text. Defaults to ``(0, 0, 0)``.
         :param hello_font: The font for the "HELLO" string. Defaults to ``terminalio.FONT``.
-        :param hello_scale: The size scale of the "HELLO" string. Defaults to 1.
-        :param hello_string: The first string of the badge. Defaults to "HELLO".
+        :type hello_font: ~BuiltinFont|~BDF|~PCF
+        :param int hello_scale: The size scale of the "HELLO" string. Defaults to 1.
+        :param str hello_string: The first string of the badge. Defaults to "HELLO".
         :param my_name_is_font: The font for the "MY NAME IS" string. Defaults to
                                 ``terminalio.FONT``.
-        :param my_name_is_scale: The size scale of the "MY NAME IS" string. Defaults to 1.
-        :param my_name_is_string: The second string of the badge. Defaults to "MY NAME IS".
+        :type my_name_is_font: ~BuiltinFont|~BDF|~PCF
+        :param int my_name_is_scale: The size scale of the "MY NAME IS" string. Defaults to 1.
+        :param str my_name_is_string: The second string of the badge. Defaults to "MY NAME IS".
         :param name_font: The font for the name string. Defaults to ``terminalio.FONT``.
-        :param name_scale: The size scale of the name string. Defaults to 1.
-        :param name_string: The third string of the badge - change to be your name. Defaults to
+        :type name_font: ~BuiltinFont|~BDF|~PCF
+        :param int name_scale: The size scale of the name string. Defaults to 1.
+        :param str name_string: The third string of the badge - change to be your name. Defaults to
                             "Blinka".
 
         .. code-block:: python
@@ -624,12 +646,12 @@ class PyBadgerBase:
         group.append(name_group)
         self.display.show(group)
 
-    def show_terminal(self):
+    def show_terminal(self) -> None:
         """Revert to terminalio screen."""
         self.display.show(None)
 
     @staticmethod
-    def bitmap_qr(matrix):
+    def bitmap_qr(matrix: adafruit_miniqr.QRBitMatrix) -> displayio.Bitmap:
         """The QR code bitmap."""
         border_pixels = 2
         bitmap = displayio.Bitmap(
@@ -643,10 +665,10 @@ class PyBadgerBase:
                     bitmap[x + border_pixels, y + border_pixels] = 0
         return bitmap
 
-    def show_qr_code(self, data="https://circuitpython.org"):
+    def show_qr_code(self, data: str = "https://circuitpython.org") -> None:
         """Generate a QR code.
 
-        :param string data: A string of data for the QR code
+        :param str data: A string of data for the QR code
 
         .. code-block:: python
 
@@ -681,13 +703,13 @@ class PyBadgerBase:
         self.display.show(qr_code)
 
     @staticmethod
-    def _sine_sample(length):
+    def _sine_sample(length: int) -> Generator[int, None, None]:
         tone_volume = (2 ** 15) - 1
         shift = 2 ** 15
         for i in range(length):
             yield int(tone_volume * math.sin(2 * math.pi * (i / length)) + shift)
 
-    def _generate_sample(self, length=100):
+    def _generate_sample(self, length: int = 100) -> None:
         if AUDIO_ENABLED:
             if self._sample is not None:
                 return
@@ -700,12 +722,12 @@ class PyBadgerBase:
         else:
             print("Required audio modules were missing")
 
-    def _enable_speaker(self, enable):
+    def _enable_speaker(self, enable: bool) -> None:
         if not hasattr(board, "SPEAKER_ENABLE"):
             return
         self._speaker_enable.value = enable
 
-    def play_tone(self, frequency, duration):
+    def play_tone(self, frequency: int, duration: float) -> None:
         """Produce a tone using the speaker. Try changing frequency to change
         the pitch of the tone.
 
@@ -718,7 +740,7 @@ class PyBadgerBase:
         time.sleep(duration)
         self.stop_tone()
 
-    def start_tone(self, frequency):
+    def start_tone(self, frequency: int) -> None:
         """Produce a tone using the speaker. Try changing frequency to change
         the pitch of the tone. Use ``stop_tone`` to stop the tone.
 
@@ -735,7 +757,7 @@ class PyBadgerBase:
         if not self._sample.playing:
             self._sample.play(self._sine_wave_sample, loop=True)
 
-    def stop_tone(self):
+    def stop_tone(self) -> None:
         """Use with ``start_tone`` to stop the tone produced."""
         # Stop playing any tones.
         if self._sample is not None and self._sample.playing:
@@ -744,10 +766,10 @@ class PyBadgerBase:
             self._sample = None
         self._enable_speaker(enable=False)
 
-    def play_file(self, file_name):
+    def play_file(self, file_name: str) -> None:
         """Play a .wav file using the onboard speaker.
 
-        :param file_name: The name of your .wav file in quotation marks including .wav
+        :param str file_name: The name of your .wav file in quotation marks including .wav
 
         """
         # Play a specified file.
@@ -769,12 +791,12 @@ class KeyStates:
     :param scanner: a `keypad` scanner, such as `keypad.Keys`
     """
 
-    def __init__(self, scanner):
+    def __init__(self, scanner: Union[Keys, ShiftRegisterKeys]) -> None:
         self._scanner = scanner
         self._pressed = [False] * self._scanner.key_count
         self.update()
 
-    def update(self):
+    def update(self) -> None:
         """Update key information based on pending scanner events."""
 
         # If the event queue overflowed, discard any pending events,
@@ -795,12 +817,12 @@ class KeyStates:
             if event.pressed:
                 self._was_pressed[event.key_number] = True
 
-    def was_pressed(self, key_number):
+    def was_pressed(self, key_number: int) -> bool:
         """True if key was down at any time since the last `update()`,
         even if it was later released.
         """
         return self._was_pressed[key_number]
 
-    def pressed(self, key_number):
+    def pressed(self, key_number: int) -> bool:
         """True if key is currently pressed, as of the last `update()`."""
         return self._pressed[key_number]

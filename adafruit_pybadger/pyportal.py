@@ -40,7 +40,7 @@ class PyPortal(PyBadgerBase):
     _audio_out = audioio.AudioOut
     _neopixel_count = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # NeoPixels

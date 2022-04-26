@@ -476,7 +476,7 @@ class PyBadgerBase:
         email_font_one: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         email_string_two: Optional[str] = None,
         email_scale_two: int = 1,
-        email_font_two: Union[BuiltinFont, BDF, PCF] = terminalio.FONT
+        email_font_two: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
     ) -> None:
         """Display a bitmap image and a text string, such as a personal image and email address.
 
@@ -573,7 +573,7 @@ class PyBadgerBase:
         my_name_is_string: str = "MY NAME IS",
         name_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         name_scale: int = 1,
-        name_string: str = "Blinka"
+        name_string: str = "Blinka",
     ) -> None:
         """Create a "Hello My Name is"-style badge.
 

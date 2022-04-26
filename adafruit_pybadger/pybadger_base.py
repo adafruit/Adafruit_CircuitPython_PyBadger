@@ -274,7 +274,7 @@ class PyBadgerBase:
         scale: int = 1,
         font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         left_justify: bool = False,
-        padding_above: int = 0,
+        padding_above: float = 0,
     ) -> None:
         """Add a line of text to the display. Designed to work with ``badge_background`` for a
         color-block style badge, or with ``image_background`` for a badge with a background image.
@@ -331,7 +331,7 @@ class PyBadgerBase:
         trim_padding = 0
         if font is terminalio.FONT:
             trim_y = 4 * scale
-            trim_padding = 4 * padding_above
+            trim_padding = round(4 * padding_above)
 
         if not padding_above:
             text_label.y = self._y_position + ((height // 2) * scale) - trim_y
@@ -342,14 +342,14 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
         else:
-            text_label.y = (
+            text_label.y = round(
                 self._y_position
                 + (((height // 2) * scale) - trim_y)
                 + ((height * padding_above) - trim_padding)
             )
 
             if font is terminalio.FONT:
-                self._y_position += (height * scale - trim_y) + (
+                self._y_position += (height * scale - trim_y) + round(
                     (height * padding_above) - trim_padding
                 )
             else:

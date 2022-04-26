@@ -439,12 +439,12 @@ class PyBadgerBase:
         return self._light_sensor.value
 
     @property
-    def acceleration(self) -> Union[LSM6DS33, LIS3DH_I2C]:
+    def acceleration(self) -> Tuple[int, int, int]:
         """Accelerometer data, +/- 2G sensitivity."""
         return (
             self._accelerometer.acceleration
             if self._accelerometer is not None
-            else None
+            else (0, 0, 0)
         )
 
     @property

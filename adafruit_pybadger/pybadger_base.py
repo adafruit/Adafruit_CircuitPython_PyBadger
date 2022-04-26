@@ -643,10 +643,12 @@ class PyBadgerBase:
         self.show(group)
 
     def show(self, group) -> None:
-        self.display.show(group)
-        self.auto_refresh = False
-        self.display.refresh()
+        """Show the given group, refreshing the screen immediately"""
         self.activity()
+        self.display.auto_refresh = False
+        self.display.show(group)
+        self.display.refresh()
+        self.display.auto_refresh = True
 
     def show_terminal(self) -> None:
         """Revert to terminalio screen."""

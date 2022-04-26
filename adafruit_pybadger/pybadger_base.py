@@ -430,6 +430,10 @@ class PyBadgerBase:
             self.display.brightness = self._display_brightness
 
     def activity(self, current_time=None):
+        """Turn postpone dimming of the screen"""
+        if not hasattr(self.display, "brightness"):
+            return
+        self.display.brightness = self._display_brightness
         self._start_time = current_time or time.monotonic()
 
     @property

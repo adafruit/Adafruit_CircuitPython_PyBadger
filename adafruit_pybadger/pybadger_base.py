@@ -36,7 +36,7 @@ import digitalio
 from adafruit_bitmap_font import bitmap_font
 import displayio
 from adafruit_display_shapes.rect import Rect
-from adafruit_display_text import label
+from adafruit_display_text import bitmap_label as label
 import terminalio
 import adafruit_miniqr
 

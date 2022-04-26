@@ -161,27 +161,20 @@ class PyBadgerBase:
         if self._background_group is None:
             self._background_group = displayio.Group()
 
-        self.display.show(self._background_group)
+        self.show(self._background_group)
 
         if self._background_image_filename:
-            with open(self._background_image_filename, "rb") as file_handle:
-                on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
-                background_image = displayio.TileGrid(
-                    on_disk_bitmap,
-                    pixel_shader=getattr(
-                        on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-                    ),
-                    # TODO: Once CP6 is no longer supported, replace the above line with below
-                    # pixel_shader=on_disk_background.pixel_shader,
-                )
-                self._background_group.append(background_image)
-                for image_label in self._lines:
-                    self._background_group.append(image_label)
-
-                self.display.refresh()
-        else:
-            for background_label in self._lines:
-                self._background_group.append(background_label)
+            file_handle = open(self._background_image_filename, "rb")
+            on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
+            background_image = displayio.TileGrid(
+                on_disk_bitmap,
+                pixel_shader=getattr(
+                    on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
+                ),
+            )
+            self._background_group.append(background_image)
+        for image_label in self._lines:
+            self._background_group.append(image_label)
 
     def badge_background(
         self,
@@ -362,7 +355,7 @@ class PyBadgerBase:
         if not self._created_background:
             self._create_badge_background()
 
-        self.display.show(self._background_group)
+        self.show(self._background_group)
 
     # pylint: disable=too-many-arguments
     def _create_label_group(
@@ -550,22 +543,20 @@ class PyBadgerBase:
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group()
-        self.display.show(business_card_splash)
-        with open(image_name, "rb") as file_name:
-            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
-            face_image = displayio.TileGrid(
-                on_disk_bitmap,
-                pixel_shader=getattr(
-                    on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-                ),
-                # TODO: Once CP6 is no longer supported, replace the above line with below
-                # pixel_shader=on_disk_bitmap.pixel_shader,
-            )
-            business_card_splash.append(face_image)
-            for group in business_card_label_groups:
-                business_card_splash.append(group)
-
-            self.display.refresh()
+        image_file = open(image_name, "rb")
+        on_disk_bitmap = displayio.OnDiskBitmap(image_file)
+        face_image = displayio.TileGrid(
+            on_disk_bitmap,
+            pixel_shader=getattr(
+                on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
+            ),
+            # TODO: Once CP6 is no longer supported, replace the above line with below
+            # pixel_shader=on_disk_bitmap.pixel_shader,
+        )
+        business_card_splash.append(face_image)
+        for group in business_card_label_groups:
+            business_card_splash.append(group)
+        self.show(business_card_splash)
 
     # pylint: disable=too-many-locals
     def show_badge(
@@ -650,11 +641,17 @@ class PyBadgerBase:
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
+        self.show(group)
+
+    def show(self, group) -> None:
         self.display.show(group)
+        self.auto_refresh = False
+        self.display.refresh()
+        self.activity()
 
     def show_terminal(self) -> None:
         """Revert to terminalio screen."""
-        self.display.show(None)
+        self.show(None)
 
     @staticmethod
     def bitmap_qr(matrix: adafruit_miniqr.QRBitMatrix) -> displayio.Bitmap:
@@ -706,7 +703,7 @@ class PyBadgerBase:
         )
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
-        self.display.show(qr_code)
+        self.show(qr_code)
 
     @staticmethod
     def _sine_sample(length: int) -> Generator[int, None, None]:

@@ -164,7 +164,9 @@ class PyBadgerBase:
         self.show(self._background_group)
 
         if self._background_image_filename:
-            file_handle = open(self._background_image_filename, "rb")
+            file_handle = open(  # pylint: disable=consider-using-with
+                self._background_image_filename, "rb"
+            )
             on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
             background_image = displayio.TileGrid(
                 on_disk_bitmap,
@@ -416,7 +418,7 @@ class PyBadgerBase:
                 pybadger.auto_dim_display(delay=10)
         """
         current_time = time.monotonic()
-        if self._check_for_movement(movement_threshold=movement_threshold:
+        if self._check_for_movement(movement_threshold=movement_threshold):
             self.activity(current_time)
         if current_time - self._start_time > delay:
             self.display.brightness = 0.1
@@ -541,7 +543,7 @@ class PyBadgerBase:
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group()
-        image_file = open(image_name, "rb")
+        image_file = open(image_name, "rb")  # pylint: disable=consider-using-with
         on_disk_bitmap = displayio.OnDiskBitmap(image_file)
         face_image = displayio.TileGrid(
             on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader

@@ -27,6 +27,9 @@ Implementation Notes
 
 """
 
+from __future__ import annotations
+
+
 import time
 import array
 import math
@@ -55,16 +58,17 @@ except ImportError:
         pass
 
 try:
+    from typing import TYPE_CHECKING
+except ImportError:
+    TYPE_CHECKING = const(0)
+
+if TYPE_CHECKING:
     from typing import Union, Tuple, Optional, Generator
     from adafruit_bitmap_font.bdf import BDF  # pylint: disable=ungrouped-imports
     from adafruit_bitmap_font.pcf import PCF  # pylint: disable=ungrouped-imports
     from fontio import BuiltinFont
     from keypad import Keys, ShiftRegisterKeys
     from neopixel import NeoPixel
-    from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-    from adafruit_lis3dh import LIS3DH_I2C
-except ImportError:
-    pass
 
 
 __version__ = "0.0.0-auto.0"

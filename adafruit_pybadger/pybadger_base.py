@@ -424,13 +424,16 @@ class PyBadgerBase:
             while True:
                 pybadger.auto_dim_display(delay=10)
         """
-        if not self._check_for_movement(movement_threshold=movement_threshold):
-            current_time = time.monotonic()
-            if current_time - self._start_time > delay:
-                self.display.brightness = 0.1
-                self._start_time = current_time
+        current_time = time.monotonic()
+        if self._check_for_movement(movement_threshold=movement_threshold:
+            self.activity(current_time)
+        if current_time - self._start_time > delay:
+            self.display.brightness = 0.1
         else:
             self.display.brightness = self._display_brightness
+
+    def activity(self, current_time=None):
+        self._start_time = current_time or time.monotonic()
 
     @property
     def pixels(self) -> NeoPixel:

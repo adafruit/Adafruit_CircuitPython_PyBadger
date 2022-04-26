@@ -421,6 +421,8 @@ class PyBadgerBase:
             while True:
                 pybadger.auto_dim_display(delay=10)
         """
+        if not hasattr(self.display, "brightness"):
+            return
         current_time = time.monotonic()
         if self._check_for_movement(movement_threshold=movement_threshold):
             self.activity(current_time)

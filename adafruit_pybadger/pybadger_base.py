@@ -168,9 +168,7 @@ class PyBadgerBase:
             on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
             background_image = displayio.TileGrid(
                 on_disk_bitmap,
-                pixel_shader=getattr(
-                    on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-                ),
+                pixel_shader=on_disk_bitmap.pixel_shader,
             )
             self._background_group.append(background_image)
         for image_label in self._lines:
@@ -546,12 +544,7 @@ class PyBadgerBase:
         image_file = open(image_name, "rb")
         on_disk_bitmap = displayio.OnDiskBitmap(image_file)
         face_image = displayio.TileGrid(
-            on_disk_bitmap,
-            pixel_shader=getattr(
-                on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-            ),
-            # TODO: Once CP6 is no longer supported, replace the above line with below
-            # pixel_shader=on_disk_bitmap.pixel_shader,
+            on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader
         )
         business_card_splash.append(face_image)
         for group in business_card_label_groups:

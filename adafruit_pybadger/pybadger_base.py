@@ -27,6 +27,9 @@ Implementation Notes
 
 """
 
+from __future__ import annotations
+
+
 import time
 import array
 import math
@@ -36,7 +39,7 @@ import digitalio
 from adafruit_bitmap_font import bitmap_font
 import displayio
 from adafruit_display_shapes.rect import Rect
-from adafruit_display_text import label
+from adafruit_display_text import bitmap_label as label
 import terminalio
 import adafruit_miniqr
 
@@ -55,16 +58,17 @@ except ImportError:
         pass
 
 try:
+    from typing import TYPE_CHECKING
+except ImportError:
+    TYPE_CHECKING = const(0)
+
+if TYPE_CHECKING:
     from typing import Union, Tuple, Optional, Generator
     from adafruit_bitmap_font.bdf import BDF  # pylint: disable=ungrouped-imports
     from adafruit_bitmap_font.pcf import PCF  # pylint: disable=ungrouped-imports
     from fontio import BuiltinFont
     from keypad import Keys, ShiftRegisterKeys
     from neopixel import NeoPixel
-    from adafruit_lsm6ds.lsm6ds33 import LSM6DS33
-    from adafruit_lis3dh import LIS3DH_I2C
-except ImportError:
-    pass
 
 
 __version__ = "0.0.0-auto.0"
@@ -161,27 +165,20 @@ class PyBadgerBase:
         if self._background_group is None:
             self._background_group = displayio.Group()
 
-        self.display.show(self._background_group)
+        self.show(self._background_group)
 
         if self._background_image_filename:
-            with open(self._background_image_filename, "rb") as file_handle:
-                on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
-                background_image = displayio.TileGrid(
-                    on_disk_bitmap,
-                    pixel_shader=getattr(
-                        on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-                    ),
-                    # TODO: Once CP6 is no longer supported, replace the above line with below
-                    # pixel_shader=on_disk_background.pixel_shader,
-                )
-                self._background_group.append(background_image)
-                for image_label in self._lines:
-                    self._background_group.append(image_label)
-
-                self.display.refresh()
-        else:
-            for background_label in self._lines:
-                self._background_group.append(background_label)
+            file_handle = open(  # pylint: disable=consider-using-with
+                self._background_image_filename, "rb"
+            )
+            on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
+            background_image = displayio.TileGrid(
+                on_disk_bitmap,
+                pixel_shader=on_disk_bitmap.pixel_shader,
+            )
+            self._background_group.append(background_image)
+        for image_label in self._lines:
+            self._background_group.append(image_label)
 
     def badge_background(
         self,
@@ -274,7 +271,7 @@ class PyBadgerBase:
         scale: int = 1,
         font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         left_justify: bool = False,
-        padding_above: int = 0,
+        padding_above: float = 0,
     ) -> None:
         """Add a line of text to the display. Designed to work with ``badge_background`` for a
         color-block style badge, or with ``image_background`` for a badge with a background image.
@@ -331,7 +328,7 @@ class PyBadgerBase:
         trim_padding = 0
         if font is terminalio.FONT:
             trim_y = 4 * scale
-            trim_padding = 4 * padding_above
+            trim_padding = round(4 * padding_above)
 
         if not padding_above:
             text_label.y = self._y_position + ((height // 2) * scale) - trim_y
@@ -342,14 +339,14 @@ class PyBadgerBase:
                 self._y_position += height * scale + 4
 
         else:
-            text_label.y = (
+            text_label.y = round(
                 self._y_position
                 + (((height // 2) * scale) - trim_y)
                 + ((height * padding_above) - trim_padding)
             )
 
             if font is terminalio.FONT:
-                self._y_position += (height * scale - trim_y) + (
+                self._y_position += (height * scale - trim_y) + round(
                     (height * padding_above) - trim_padding
                 )
             else:
@@ -362,7 +359,7 @@ class PyBadgerBase:
         if not self._created_background:
             self._create_badge_background()
 
-        self.display.show(self._background_group)
+        self.show(self._background_group)
 
     # pylint: disable=too-many-arguments
     def _create_label_group(
@@ -424,13 +421,22 @@ class PyBadgerBase:
             while True:
                 pybadger.auto_dim_display(delay=10)
         """
-        if not self._check_for_movement(movement_threshold=movement_threshold):
-            current_time = time.monotonic()
-            if current_time - self._start_time > delay:
-                self.display.brightness = 0.1
-                self._start_time = current_time
+        if not hasattr(self.display, "brightness"):
+            return
+        current_time = time.monotonic()
+        if self._check_for_movement(movement_threshold=movement_threshold):
+            self.activity(current_time)
+        if current_time - self._start_time > delay:
+            self.display.brightness = 0.1
         else:
             self.display.brightness = self._display_brightness
+
+    def activity(self, current_time=None):
+        """Turn postpone dimming of the screen"""
+        if not hasattr(self.display, "brightness"):
+            return
+        self.display.brightness = self._display_brightness
+        self._start_time = current_time or time.monotonic()
 
     @property
     def pixels(self) -> NeoPixel:
@@ -443,12 +449,12 @@ class PyBadgerBase:
         return self._light_sensor.value
 
     @property
-    def acceleration(self) -> Union[LSM6DS33, LIS3DH_I2C]:
+    def acceleration(self) -> Tuple[int, int, int]:
         """Accelerometer data, +/- 2G sensitivity."""
         return (
             self._accelerometer.acceleration
             if self._accelerometer is not None
-            else None
+            else (0, 0, 0)
         )
 
     @property
@@ -476,7 +482,7 @@ class PyBadgerBase:
         email_font_one: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         email_string_two: Optional[str] = None,
         email_scale_two: int = 1,
-        email_font_two: Union[BuiltinFont, BDF, PCF] = terminalio.FONT
+        email_font_two: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
     ) -> None:
         """Display a bitmap image and a text string, such as a personal image and email address.
 
@@ -547,22 +553,15 @@ class PyBadgerBase:
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group()
-        self.display.show(business_card_splash)
-        with open(image_name, "rb") as file_name:
-            on_disk_bitmap = displayio.OnDiskBitmap(file_name)
-            face_image = displayio.TileGrid(
-                on_disk_bitmap,
-                pixel_shader=getattr(
-                    on_disk_bitmap, "pixel_shader", displayio.ColorConverter()
-                ),
-                # TODO: Once CP6 is no longer supported, replace the above line with below
-                # pixel_shader=on_disk_bitmap.pixel_shader,
-            )
-            business_card_splash.append(face_image)
-            for group in business_card_label_groups:
-                business_card_splash.append(group)
-
-            self.display.refresh()
+        image_file = open(image_name, "rb")  # pylint: disable=consider-using-with
+        on_disk_bitmap = displayio.OnDiskBitmap(image_file)
+        face_image = displayio.TileGrid(
+            on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader
+        )
+        business_card_splash.append(face_image)
+        for group in business_card_label_groups:
+            business_card_splash.append(group)
+        self.show(business_card_splash)
 
     # pylint: disable=too-many-locals
     def show_badge(
@@ -580,7 +579,7 @@ class PyBadgerBase:
         my_name_is_string: str = "MY NAME IS",
         name_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         name_scale: int = 1,
-        name_string: str = "Blinka"
+        name_string: str = "Blinka",
     ) -> None:
         """Create a "Hello My Name is"-style badge.
 
@@ -647,11 +646,19 @@ class PyBadgerBase:
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
+        self.show(group)
+
+    def show(self, group) -> None:
+        """Show the given group, refreshing the screen immediately"""
+        self.activity()
+        self.display.auto_refresh = False
         self.display.show(group)
+        self.display.refresh()
+        self.display.auto_refresh = True
 
     def show_terminal(self) -> None:
         """Revert to terminalio screen."""
-        self.display.show(None)
+        self.show(None)
 
     @staticmethod
     def bitmap_qr(matrix: adafruit_miniqr.QRBitMatrix) -> displayio.Bitmap:
@@ -703,7 +710,7 @@ class PyBadgerBase:
         )
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
-        self.display.show(qr_code)
+        self.show(qr_code)
 
     @staticmethod
     def _sine_sample(length: int) -> Generator[int, None, None]:

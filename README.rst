@@ -13,6 +13,10 @@ Introduction
     :target: https://github.com/adafruit/Adafruit_CircuitPython_PyBadger/actions/
     :alt: Build Status
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code Style: Black
+
 Badge-focused CircuitPython helper library for PyBadge, PyBadge LC, PyGamer, CLUE, and Mag Tag.
 
 

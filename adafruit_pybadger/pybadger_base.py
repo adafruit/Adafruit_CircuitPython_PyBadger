@@ -71,7 +71,7 @@ if TYPE_CHECKING:
     from neopixel import NeoPixel
 
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 

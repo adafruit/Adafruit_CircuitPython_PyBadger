@@ -33,7 +33,7 @@ import adafruit_lsm6ds.lsm6ds33
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 Buttons = namedtuple("Buttons", "a b")

@@ -30,7 +30,7 @@ import audioio
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
-__version__ = "0.0.0-auto.0"
+__version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 

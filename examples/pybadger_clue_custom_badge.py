@@ -14,12 +14,12 @@ pybadger.badge_background(
 pybadger.badge_line(
     text="@circuitpython", color=pybadger.BLINKA_PURPLE, scale=2, padding_above=2
 )
-pybadger.badge_line(text="Blinka", color=pybadger.WHITE, scale=5, padding_above=3)
+pybadger.badge_line(text="Blinka", color=pybadger.WHITE, scale=5, padding_above=6)
 pybadger.badge_line(
     text="CircuitPythonista", color=pybadger.WHITE, scale=2, padding_above=2
 )
 pybadger.badge_line(
-    text="she/her", color=pybadger.BLINKA_PINK, scale=4, padding_above=4
+    text="she/her", color=pybadger.BLINKA_PINK, scale=4, padding_above=7
 )
 
 pybadger.show_custom_badge()

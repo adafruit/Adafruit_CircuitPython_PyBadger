@@ -399,10 +399,10 @@ class PyBadgerBase:
             self._last_accelerometer = current_accelerometer
             return False
         acceleration_delta = sum(
-            [
+            (
                 abs(self._last_accelerometer[n] - current_accelerometer[n])
                 for n in range(3)
-            ]
+            )
         )
         self._last_accelerometer = current_accelerometer
         return acceleration_delta > movement_threshold

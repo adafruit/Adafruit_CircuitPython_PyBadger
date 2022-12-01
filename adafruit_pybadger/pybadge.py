@@ -40,10 +40,6 @@ import adafruit_lis3dh
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
-try:
-    from typing import Type
-except ImportError:
-    pass
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -105,7 +101,7 @@ class PyBadge(PyBadgerBase):
         self._light_sensor = analogio.AnalogIn(board.A7)
 
     @property
-    def button(self) -> Type[tuple]:
+    def button(self) -> Buttons:
         """The buttons on the board.
 
         Example use:

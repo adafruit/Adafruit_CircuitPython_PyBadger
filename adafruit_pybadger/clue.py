@@ -38,11 +38,6 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
 
 Buttons = namedtuple("Buttons", "a b")
 
-try:
-    from typing import Type
-except ImportError:
-    pass
-
 
 class Clue(PyBadgerBase):
     """Class that represents a single CLUE."""
@@ -69,7 +64,7 @@ class Clue(PyBadgerBase):
         self._buttons = KeyStates(self._keys)
 
     @property
-    def button(self) -> Type[tuple]:
+    def button(self) -> Buttons:
         """The buttons on the board.
 
         Example use:

@@ -36,7 +36,7 @@ import adafruit_lis3dh
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
 try:
-    from typing import Type, Tuple
+    from typing import Tuple
 except ImportError:
     pass
 
@@ -85,7 +85,7 @@ class PyGamer(PyBadgerBase):
         self._light_sensor = analogio.AnalogIn(board.A7)
 
     @property
-    def button(self) -> Type[tuple]:
+    def button(self) -> Buttons:
         """The buttons on the board.
 
         Example use:

@@ -31,10 +31,6 @@ import audioio
 import keypad
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
-try:
-    from typing import Type
-except ImportError:
-    pass
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -68,7 +64,7 @@ class PewPewM4(PyBadgerBase):
         self._buttons = KeyStates(self._keys)
 
     @property
-    def button(self) -> Type[tuple]:
+    def button(self) -> Buttons:
         """The buttons on the board.
 
         Example use:

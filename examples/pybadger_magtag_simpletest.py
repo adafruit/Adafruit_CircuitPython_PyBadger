@@ -55,7 +55,6 @@ print("after show, going to loop")
 pybadger.pixels.fill(0x000022)
 
 while True:
-
     cur_a = btn_a.value
     cur_b = btn_b.value
     cur_c = btn_c.value

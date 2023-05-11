@@ -37,6 +37,7 @@ pybadger.badge_line(
 # Start with the custom badge page
 pybadger.show_custom_badge()
 
+
 # This task responds to buttons and changes the visible page
 async def ui_task():
     while True:

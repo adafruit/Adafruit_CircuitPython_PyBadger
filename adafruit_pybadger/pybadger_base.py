@@ -652,7 +652,7 @@ class PyBadgerBase:
         """Show the given group, refreshing the screen immediately"""
         self.activity()
         self.display.auto_refresh = False
-        self.display.show(group)
+        self.display.root_group = group
         self.display.refresh()
         self.display.auto_refresh = True
 

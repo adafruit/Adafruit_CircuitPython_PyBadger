@@ -50,7 +50,7 @@ async def ui_task():
                 email_string_two=pronoun,
             )
         elif pybadger.button.b:
-            pybadger.show(qr_gp)
+            pybadger.root_group = qr_gp
         elif pybadger.button.start:
             pybadger.show_custom_badge()
         elif pybadger.button.select:

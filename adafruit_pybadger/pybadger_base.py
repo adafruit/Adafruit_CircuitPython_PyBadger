@@ -165,7 +165,7 @@ class PyBadgerBase:
         if self._background_group is None:
             self._background_group = displayio.Group()
 
-        self.show(self._background_group)
+        self.root_group = self._background_group
 
         if self._background_image_filename:
             file_handle = open(  # pylint: disable=consider-using-with
@@ -359,7 +359,7 @@ class PyBadgerBase:
         if not self._created_background:
             self._create_badge_background()
 
-        self.show(self._background_group)
+        self.root_group = self._background_group
 
     # pylint: disable=too-many-arguments
     def _create_label_group(
@@ -561,7 +561,7 @@ class PyBadgerBase:
         business_card_splash.append(face_image)
         for group in business_card_label_groups:
             business_card_splash.append(group)
-        self.show(business_card_splash)
+        self.root_group = business_card_splash
 
     # pylint: disable=too-many-locals
     def show_badge(
@@ -646,9 +646,15 @@ class PyBadgerBase:
         group.append(hello_group)
         group.append(my_name_is_group)
         group.append(name_group)
-        self.show(group)
+        self.root_group = group
 
-    def show(self, group) -> None:
+    @property
+    def root_group(self):
+        """The currently showing Group"""
+        return self.display.root_group
+
+    @root_group.setter
+    def root_group(self, group):
         """Show the given group, refreshing the screen immediately"""
         self.activity()
         self.display.auto_refresh = False
@@ -658,7 +664,7 @@ class PyBadgerBase:
 
     def show_terminal(self) -> None:
         """Revert to terminalio screen."""
-        self.show(None)
+        self.root_group = displayio.CIRCUITPYTHON_TERMINAL
 
     @staticmethod
     def bitmap_qr(matrix: adafruit_miniqr.QRBitMatrix) -> displayio.Bitmap:
@@ -710,7 +716,7 @@ class PyBadgerBase:
         )
         qr_code = displayio.Group(scale=qr_code_scale)
         qr_code.append(qr_img)
-        self.show(qr_code)
+        self.root_group = qr_code
 
     @staticmethod
     def _sine_sample(length: int) -> Generator[int, None, None]:

@@ -30,6 +30,7 @@ import board
 import audiopwmio
 import keypad
 import adafruit_lsm6ds.lsm6ds33
+import adafruit_lsm6ds.lsm6ds3trc
 import neopixel
 from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
@@ -51,7 +52,10 @@ class Clue(PyBadgerBase):
         i2c = board.I2C()
 
         if i2c is not None:
-            self._accelerometer = adafruit_lsm6ds.lsm6ds33.LSM6DS33(i2c)
+            try:
+                self._accelerometer = adafruit_lsm6ds.lsm6ds33.LSM6DS33(i2c)
+            except RuntimeError:
+                self._accelerometer = adafruit_lsm6ds.lsm6ds3trc.LSM6DS3TRC(i2c)
 
         # NeoPixels
         self._neopixels = neopixel.NeoPixel(

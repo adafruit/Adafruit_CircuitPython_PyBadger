@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: MIT
 
 """Simpletest example using the Mag Tag.
-   Use the A, B, and C buttons to change between examples."""
+Use the A, B, and C buttons to change between examples."""
+
 import time
+
 import board
 import digitalio
+
 from adafruit_pybadger import pybadger
 
 
@@ -44,9 +47,7 @@ prev_c = btn_c.value
 
 SHOWING = "badge"
 
-pybadger.show_badge(
-    name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3
-)
+pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3)
 
 try_refresh()
 

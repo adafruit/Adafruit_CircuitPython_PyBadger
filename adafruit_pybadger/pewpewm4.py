@@ -26,11 +26,12 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import board
-import audioio
-import keypad
-from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
+import audioio
+import board
+import keypad
+
+from adafruit_pybadger.pybadger_base import KeyStates, PyBadgerBase
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -80,9 +81,7 @@ class PewPewM4(PyBadgerBase):
                   print("Button O")
         """
         self._buttons.update()
-        button_values = tuple(
-            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
-        )
+        button_values = tuple(self._buttons.was_pressed(i) for i in range(self._keys.key_count))
         return Buttons(
             button_values[0],
             button_values[1],
@@ -106,5 +105,5 @@ class PewPewM4(PyBadgerBase):
     pixels = _unsupported
 
 
-pewpewm4 = PewPewM4()  # pylint: disable=invalid-name
+pewpewm4 = PewPewM4()
 """Object that is automatically created on import."""

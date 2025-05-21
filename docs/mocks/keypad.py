@@ -26,7 +26,7 @@ class ShiftRegisterKeys:
         key_count,
         value_when_pressed,
         interval=0.020,
-        max_events=64
+        max_events=64,
     ):
         self.key_count = 123
         self.events = EventQueue()

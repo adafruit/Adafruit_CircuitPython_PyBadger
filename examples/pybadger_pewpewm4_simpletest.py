@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 """Simpletest example using the Pew Pew M4.
-   Use the O, X, and Z buttons to change between examples."""
+Use the O, X, and Z buttons to change between examples."""
+
 from adafruit_pybadger import pybadger
 
-pybadger.show_badge(
-    name_string="Blinka", hello_scale=3, my_name_is_scale=3, name_scale=4
-)
+pybadger.show_badge(name_string="Blinka", hello_scale=3, my_name_is_scale=3, name_scale=4)
 
 while True:
     if pybadger.button.o:
@@ -23,6 +22,4 @@ while True:
     elif pybadger.button.x:
         pybadger.show_qr_code(data="https://circuitpython.org")
     elif pybadger.button.z:
-        pybadger.show_badge(
-            name_string="Blinka", hello_scale=3, my_name_is_scale=3, name_scale=4
-        )
+        pybadger.show_badge(name_string="Blinka", hello_scale=3, my_name_is_scale=3, name_scale=4)

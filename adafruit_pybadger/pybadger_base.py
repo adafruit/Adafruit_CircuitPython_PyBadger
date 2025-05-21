@@ -29,19 +29,19 @@ Implementation Notes
 
 from __future__ import annotations
 
-
-import time
 import array
 import math
+import time
+
+import adafruit_miniqr
 import board
-from micropython import const
 import digitalio
-from adafruit_bitmap_font import bitmap_font
 import displayio
+import terminalio
+from adafruit_bitmap_font import bitmap_font
 from adafruit_display_shapes.rect import Rect
 from adafruit_display_text import bitmap_label as label
-import terminalio
-import adafruit_miniqr
+from micropython import const
 
 AUDIO_ENABLED = False
 try:
@@ -63,9 +63,10 @@ except ImportError:
     TYPE_CHECKING = const(0)
 
 if TYPE_CHECKING:
-    from typing import Union, Tuple, Optional, Generator
-    from adafruit_bitmap_font.bdf import BDF  # pylint: disable=ungrouped-imports
-    from adafruit_bitmap_font.pcf import PCF  # pylint: disable=ungrouped-imports
+    from typing import Generator, Optional, Union
+
+    from adafruit_bitmap_font.bdf import BDF
+    from adafruit_bitmap_font.pcf import PCF
     from fontio import BuiltinFont
     from keypad import Keys, ShiftRegisterKeys
     from neopixel import NeoPixel
@@ -87,7 +88,6 @@ def load_font(fontname: str, text: str) -> Union[BDF, PCF]:
     return font
 
 
-# pylint: disable=too-many-instance-attributes
 class PyBadgerBase:
     """PyBadger base class."""
 
@@ -168,9 +168,7 @@ class PyBadgerBase:
         self.root_group = self._background_group
 
         if self._background_image_filename:
-            file_handle = open(  # pylint: disable=consider-using-with
-                self._background_image_filename, "rb"
-            )
+            file_handle = open(self._background_image_filename, "rb")
             on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
             background_image = displayio.TileGrid(
                 on_disk_bitmap,
@@ -182,8 +180,8 @@ class PyBadgerBase:
 
     def badge_background(
         self,
-        background_color: Tuple[int, int, int] = RED,
-        rectangle_color: Tuple[int, int, int] = WHITE,
+        background_color: tuple[int, int, int] = RED,
+        rectangle_color: tuple[int, int, int] = WHITE,
         rectangle_drop: float = 0.4,
         rectangle_height: float = 0.5,
     ) -> displayio.Group:
@@ -219,8 +217,8 @@ class PyBadgerBase:
 
     def _badge_background(
         self,
-        background_color: Tuple[int, int, int] = RED,
-        rectangle_color: Tuple[int, int, int] = WHITE,
+        background_color: tuple[int, int, int] = RED,
+        rectangle_color: tuple[int, int, int] = WHITE,
         rectangle_drop: float = 0.4,
         rectangle_height: float = 0.5,
     ) -> displayio.Group:
@@ -231,9 +229,7 @@ class PyBadgerBase:
         color_palette = displayio.Palette(1)
         color_palette[0] = background_color
 
-        bg_sprite = displayio.TileGrid(
-            color_bitmap, pixel_shader=color_palette, x=0, y=0
-        )
+        bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
         background_group.append(bg_sprite)
 
         rectangle = Rect(
@@ -263,11 +259,10 @@ class PyBadgerBase:
         """
         self._background_image_filename = image_name
 
-    # pylint: disable=too-many-arguments
     def badge_line(
         self,
         text: str = " ",
-        color: Tuple[int, int, int] = BLACK,
+        color: tuple[int, int, int] = BLACK,
         scale: int = 1,
         font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         left_justify: bool = False,
@@ -361,7 +356,6 @@ class PyBadgerBase:
 
         self.root_group = self._background_group
 
-    # pylint: disable=too-many-arguments
     def _create_label_group(
         self,
         text: str,
@@ -399,10 +393,7 @@ class PyBadgerBase:
             self._last_accelerometer = current_accelerometer
             return False
         acceleration_delta = sum(
-            (
-                abs(self._last_accelerometer[n] - current_accelerometer[n])
-                for n in range(3)
-            )
+            abs(self._last_accelerometer[n] - current_accelerometer[n]) for n in range(3)
         )
         self._last_accelerometer = current_accelerometer
         return acceleration_delta > movement_threshold
@@ -449,13 +440,9 @@ class PyBadgerBase:
         return self._light_sensor.value
 
     @property
-    def acceleration(self) -> Tuple[int, int, int]:
+    def acceleration(self) -> tuple[int, int, int]:
         """Accelerometer data, +/- 2G sensitivity."""
-        return (
-            self._accelerometer.acceleration
-            if self._accelerometer is not None
-            else (0, 0, 0)
-        )
+        return self._accelerometer.acceleration if self._accelerometer is not None else (0, 0, 0)
 
     @property
     def brightness(self) -> float:
@@ -467,7 +454,6 @@ class PyBadgerBase:
         self._display_brightness = value
         self.display.brightness = value
 
-    # pylint: disable=too-many-locals
     def show_business_card(
         self,
         *,
@@ -553,24 +539,21 @@ class PyBadgerBase:
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group()
-        image_file = open(image_name, "rb")  # pylint: disable=consider-using-with
+        image_file = open(image_name, "rb")
         on_disk_bitmap = displayio.OnDiskBitmap(image_file)
-        face_image = displayio.TileGrid(
-            on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader
-        )
+        face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader)
         business_card_splash.append(face_image)
         for group in business_card_label_groups:
             business_card_splash.append(group)
         self.root_group = business_card_splash
 
-    # pylint: disable=too-many-locals
     def show_badge(
         self,
         *,
-        background_color: Tuple[int, int, int] = RED,
-        foreground_color: Tuple[int, int, int] = WHITE,
-        background_text_color: Tuple[int, int, int] = WHITE,
-        foreground_text_color: Tuple[int, int, int] = BLACK,
+        background_color: tuple[int, int, int] = RED,
+        foreground_color: tuple[int, int, int] = WHITE,
+        background_text_color: tuple[int, int, int] = WHITE,
+        foreground_text_color: tuple[int, int, int] = BLACK,
         hello_font: Union[BuiltinFont, BDF, PCF] = terminalio.FONT,
         hello_scale: int = 1,
         hello_string: str = "HELLO",
@@ -705,12 +688,8 @@ class PyBadgerBase:
             self.display.width // qr_bitmap.width,
             self.display.height // qr_bitmap.height,
         )
-        qr_position_x = int(
-            ((self.display.width / qr_code_scale) - qr_bitmap.width) / 2
-        )
-        qr_position_y = int(
-            ((self.display.height / qr_code_scale) - qr_bitmap.height) / 2
-        )
+        qr_position_x = int(((self.display.width / qr_code_scale) - qr_bitmap.width) / 2)
+        qr_position_y = int(((self.display.height / qr_code_scale) - qr_bitmap.height) / 2)
         qr_img = displayio.TileGrid(
             qr_bitmap, pixel_shader=palette, x=qr_position_x, y=qr_position_y
         )
@@ -730,10 +709,7 @@ class PyBadgerBase:
             if self._sample is not None:
                 return
             self._sine_wave = array.array("H", PyBadgerBase._sine_sample(length))
-            # pylint: disable=not-callable
-            self._sample = self._audio_out(
-                board.SPEAKER
-            )  # pylint: disable=not-callable
+            self._sample = self._audio_out(board.SPEAKER)
             self._sine_wave_sample = audiocore.RawSample(self._sine_wave)
         else:
             print("Required audio modules were missing")
@@ -791,10 +767,8 @@ class PyBadgerBase:
         # Play a specified file.
         self.stop_tone()
         self._enable_speaker(enable=True)
-        with self._audio_out(board.SPEAKER) as audio:  # pylint: disable=not-callable
-            wavefile = audiocore.WaveFile(
-                open(file_name, "rb")  # pylint: disable=consider-using-with
-            )
+        with self._audio_out(board.SPEAKER) as audio:
+            wavefile = audiocore.WaveFile(open(file_name, "rb"))
             audio.play(wavefile)
             while audio.playing:
                 pass

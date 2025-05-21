@@ -26,10 +26,11 @@ Implementation Notes
 """
 
 from collections import namedtuple
+
 import board
 import neopixel
-from adafruit_pybadger.pybadger_base import PyBadgerBase
 
+from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -81,5 +82,5 @@ class MagTag(PyBadgerBase):
     button = _unsupported
 
 
-magtag = MagTag()  # pylint: disable=invalid-name
+magtag = MagTag()
 """Object that is automatically created on import."""

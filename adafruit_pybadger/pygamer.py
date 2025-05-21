@@ -26,14 +26,16 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import board
-import analogio
-import digitalio
-import audioio
-import neopixel
-import keypad
+
 import adafruit_lis3dh
-from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
+import analogio
+import audioio
+import board
+import digitalio
+import keypad
+import neopixel
+
+from adafruit_pybadger.pybadger_base import KeyStates, PyBadgerBase
 
 try:
     from typing import Tuple
@@ -59,9 +61,7 @@ class PyGamer(PyBadgerBase):
 
         int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
         try:
-            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
-                i2c, address=0x19, int1=int1
-            )
+            self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
         except ValueError:
             self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
@@ -106,9 +106,7 @@ class PyGamer(PyBadgerBase):
 
         """
         self._buttons.update()
-        button_values = tuple(
-            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
-        )
+        button_values = tuple(self._buttons.was_pressed(i) for i in range(self._keys.key_count))
         x, y = self.joystick
         return Buttons(
             button_values[0],
@@ -129,5 +127,5 @@ class PyGamer(PyBadgerBase):
         return x, y
 
 
-pygamer = PyGamer()  # pylint: disable=invalid-name
+pygamer = PyGamer()
 """Object that is automatically created on import."""

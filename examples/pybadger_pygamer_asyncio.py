@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: 2022 Jeff Epler for Adafruit Industries
 # SPDX-License-Identifier: MIT
 
-# pylint: disable=consider-using-with
 
 import asyncio
-from displayio import TileGrid, OnDiskBitmap, Group
+
+from displayio import Group, OnDiskBitmap, TileGrid
 from rainbowio import colorwheel
+
 from adafruit_pybadger import pybadger
 
 # If you choose to enter a pronoun it's shown on the "business card" page
@@ -26,13 +27,9 @@ pybadger.badge_background(
     rectangle_height=0.55,
 )
 
-pybadger.badge_line(
-    text="HELLO I'M", color=pybadger.BLINKA_PURPLE, scale=2, padding_above=1
-)
+pybadger.badge_line(text="HELLO I'M", color=pybadger.BLINKA_PURPLE, scale=2, padding_above=1)
 pybadger.badge_line(text=custom_line1, color=pybadger.WHITE, scale=6, padding_above=1)
-pybadger.badge_line(
-    text=custom_line2, color=pybadger.BLINKA_PURPLE, scale=2, padding_above=0.25
-)
+pybadger.badge_line(text=custom_line2, color=pybadger.BLINKA_PURPLE, scale=2, padding_above=0.25)
 
 # Start with the custom badge page
 pybadger.show_custom_badge()

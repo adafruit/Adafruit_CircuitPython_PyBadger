@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 from adafruit_debouncer import Debouncer
+
 from adafruit_pybadger import pybadger
 
 b_btn = Debouncer(lambda: pybadger.button.b == 0)

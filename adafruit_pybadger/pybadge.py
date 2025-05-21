@@ -31,15 +31,16 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import board
-import digitalio
+
+import adafruit_lis3dh
 import analogio
 import audioio
+import board
+import digitalio
 import keypad
-import adafruit_lis3dh
 import neopixel
-from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
 
+from adafruit_pybadger.pybadger_base import KeyStates, PyBadgerBase
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -75,12 +76,10 @@ class PyBadge(PyBadgerBase):
                     break
 
             # PyBadge LC doesn't have accelerometer
-            if int(0x18) in _i2c_devices or int(0x19) in _i2c_devices:
+            if 0x18 in _i2c_devices or 0x19 in _i2c_devices:
                 int1 = digitalio.DigitalInOut(board.ACCELEROMETER_INTERRUPT)
                 try:
-                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(
-                        i2c, address=0x19, int1=int1
-                    )
+                    self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, address=0x19, int1=int1)
                 except ValueError:
                     self._accelerometer = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
 
@@ -122,9 +121,7 @@ class PyBadge(PyBadgerBase):
 
         """
         self._buttons.update()
-        button_values = tuple(
-            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
-        )
+        button_values = tuple(self._buttons.was_pressed(i) for i in range(self._keys.key_count))
         return Buttons(
             button_values[0],
             button_values[1],
@@ -137,5 +134,5 @@ class PyBadge(PyBadgerBase):
         )
 
 
-pybadge = PyBadge()  # pylint: disable=invalid-name
+pybadge = PyBadge()
 """Object that is automatically created on import."""

@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: MIT
 
 """Simpletest example using Adafruit PyPortal. Uses the touchscreen to advance between examples."""
-import board
-import adafruit_touchscreen
-from adafruit_pybadger import pybadger
 
-# pylint: disable=invalid-name
+import adafruit_touchscreen
+import board
+
+from adafruit_pybadger import pybadger
 
 # These pins are used as both analog and digital! XL, XR and YU must be analog
 # and digital capable. YD just need to be digital
@@ -19,9 +19,7 @@ ts = adafruit_touchscreen.Touchscreen(
     size=(320, 240),
 )
 
-pybadger.show_badge(
-    name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3
-)
+pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3)
 
 cur_example = 0
 prev_touch = None
@@ -45,6 +43,4 @@ while True:
     elif cur_example == 1:
         pybadger.show_qr_code(data="https://circuitpython.org")
     elif cur_example == 2:
-        pybadger.show_badge(
-            name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3
-        )
+        pybadger.show_badge(name_string="Blinka", hello_scale=2, my_name_is_scale=2, name_scale=3)

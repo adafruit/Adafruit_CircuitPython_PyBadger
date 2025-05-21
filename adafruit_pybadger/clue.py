@@ -26,13 +26,15 @@ Implementation Notes
 """
 
 from collections import namedtuple
-import board
-import audiopwmio
-import keypad
-import adafruit_lsm6ds.lsm6ds33
+
 import adafruit_lsm6ds.lsm6ds3trc
+import adafruit_lsm6ds.lsm6ds33
+import audiopwmio
+import board
+import keypad
 import neopixel
-from adafruit_pybadger.pybadger_base import PyBadgerBase, KeyStates
+
+from adafruit_pybadger.pybadger_base import KeyStates, PyBadgerBase
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_PyBadger.git"
@@ -84,9 +86,7 @@ class Clue(PyBadgerBase):
                   print("Button B")
         """
         self._buttons.update()
-        button_values = tuple(
-            self._buttons.was_pressed(i) for i in range(self._keys.key_count)
-        )
+        button_values = tuple(self._buttons.was_pressed(i) for i in range(self._keys.key_count))
         return Buttons(button_values[0], button_values[1])
 
     @property
@@ -101,5 +101,5 @@ class Clue(PyBadgerBase):
     light = _unsupported
 
 
-clue = Clue()  # pylint: disable=invalid-name
+clue = Clue()
 """Object that is automatically created on import."""

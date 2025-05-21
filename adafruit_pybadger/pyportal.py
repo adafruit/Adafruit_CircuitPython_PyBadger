@@ -24,10 +24,12 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
-import board
+
 import analogio
 import audioio
+import board
 import neopixel
+
 from adafruit_pybadger.pybadger_base import PyBadgerBase
 
 __version__ = "0.0.0+auto.0"
@@ -62,5 +64,5 @@ class PyPortal(PyBadgerBase):
     auto_dim_display = _unsupported
 
 
-pyportal = PyPortal()  # pylint: disable=invalid-name
+pyportal = PyPortal()
 """Object that is automatically created on import."""

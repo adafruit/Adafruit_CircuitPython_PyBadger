@@ -168,8 +168,7 @@ class PyBadgerBase:
         self.root_group = self._background_group
 
         if self._background_image_filename:
-            file_handle = open(self._background_image_filename, "rb")
-            on_disk_bitmap = displayio.OnDiskBitmap(file_handle)
+            on_disk_bitmap = displayio.OnDiskBitmap(self._background_image_filename)
             background_image = displayio.TileGrid(
                 on_disk_bitmap,
                 pixel_shader=on_disk_bitmap.pixel_shader,

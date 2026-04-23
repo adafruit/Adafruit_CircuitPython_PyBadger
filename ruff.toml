@@ -101,6 +101,7 @@ ignore = [
     "PLR6301", # could-be-static no-self-use
     "PLC0415", # import outside toplevel
     "UP007", # x | y type annotation
+    "UP045", # optional type annotation
 ]
 
 [format]

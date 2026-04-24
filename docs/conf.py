@@ -37,7 +37,6 @@ autodoc_mock_imports = [
     "adafruit_lsm6ds",
     "audiocore",
     "audiopwmio",
-    "micropython",
     "terminalio",
     "digitalio",
     "board",

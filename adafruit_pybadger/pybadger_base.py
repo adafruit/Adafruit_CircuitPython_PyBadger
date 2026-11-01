@@ -538,8 +538,7 @@ class PyBadgerBase:
             business_card_label_groups.append(email_two_group)
 
         business_card_splash = displayio.Group()
-        image_file = open(image_name, "rb")
-        on_disk_bitmap = displayio.OnDiskBitmap(image_file)
+        on_disk_bitmap = displayio.OnDiskBitmap(image_name)
         face_image = displayio.TileGrid(on_disk_bitmap, pixel_shader=on_disk_bitmap.pixel_shader)
         business_card_splash.append(face_image)
         for group in business_card_label_groups:

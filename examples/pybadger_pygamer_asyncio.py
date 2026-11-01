@@ -15,7 +15,7 @@ custom_line1 = "FIRST"
 custom_line2 = "LAST"  # also a great place to show a pronoun
 
 # Set up the custom image
-qr_image = OnDiskBitmap(open("/QR_Blinka_CircuitPythonOrg.bmp", "rb"))
+qr_image = OnDiskBitmap("/QR_Blinka_CircuitPythonOrg.bmp")
 qr_tg = TileGrid(qr_image, pixel_shader=qr_image.pixel_shader)
 qr_gp = Group()
 qr_gp.append(qr_tg)
